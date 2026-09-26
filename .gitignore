@@ -1,0 +1,11 @@
+_history*
+__pycache__/
+*.py
+_check*.js
+_audit.json
+*.docx
+_*/
+_*.png
+_*.json
+Thumbs.db
+.DS_Store
