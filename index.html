@@ -1,819 +1,536 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>しんぞうポンプラボ｜中２理科・動物の体のつくりと働き</title>
-<meta name="description" content="本物の3D心臓を回して4つの部屋と太い血管を確かめ、体循環と肺循環を血液の流れで追い、最後に「肺動脈に静脈血が流れる理由」を自分の言葉で説明する。教科書p.138-141対応。">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>しんぞうポンプラボ｜中２理科・心臓のはたらきと血液の循環</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M16 28 C6 20 2 15 2 9.5 A6.5 6.5 0 0 1 16 7 A6.5 6.5 0 0 1 30 9.5 C30 15 26 20 16 28Z%22 fill=%22%23e0283f%22/%3E%3C/svg%3E">
+<meta name="description" content="血液が体をめぐるようす、3Dの心臓、心臓の断面、血液の循環の図を順に見て、「肺動脈に静脈血が流れる理由」を説明する。教科書 p.136〜141 対応。">
 <meta property="og:title" content="しんぞうポンプラボ｜血液はどうめぐる？">
-<meta property="og:description" content="3D心臓をタップして部屋の名前としごとを確認→血液を流して体循環・肺循環→肺動脈のなぞに挑戦。">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🫀</text></svg>">
+<meta property="og:description" content="体をめぐる血液 → 3Dの心臓 → 心臓の断面 → 循環の図 → 肺動脈のなぞ。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<script src="three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
 <style>
+/* 見た目：地はミント（2026-10-11 本人が A濃紺・B生成り・Cミント から C を選択。最初の案3黄色から変更）。図は明るいパネルの上、ベタ塗り・輪郭線なし */
 :root{
-  --pink:#ffb8c8; --pink-l:#ffe3ea; --mint:#a8e6cf; --mint-l:#dcf6ec;
-  --yellow:#ffe08a; --yellow-l:#fff4d6; --purple:#c8b6ff; --purple-l:#ece6ff;
-  --blue:#9ad0ec; --blue-l:#e0f1fb;
-  --ink:#4a4458; --ink-soft:#7d7791; --paper:#fffdf8; --line:#e8e2d8;
-  --art:#f26d7d; --ven:#6d8fd6;
+  --g:#bfe6d6; --panel:#fbf6ea; --ink:#2b2118; --sub:#4a3a24; --line:#2b2118;
+  --art:#e0283f; --ven:#2f63c8;                 /* 動脈血＝赤／静脈血＝青（教科書の色の約束） */
+  --artL:#f4a3ae; --venL:#9cc6f2; --wall:#f6d6cf; --wallD:#eaa9a1; --wallLine:#c0786f; --body:#efe6d2; --bodyc:#ebe2cf; --gInk:#2b2118;
+  --o2:#ffffff; --co2:#7a7068;
+  --f-head:"Zen Maru Gothic","BIZ UDPGothic",sans-serif; --f-body:"BIZ UDPGothic","Zen Maru Gothic",sans-serif;
 }
-*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-body{
-  margin:0; color:var(--ink);
-  font-family:'Zen Maru Gothic','Hiragino Maru Gothic ProN','BIZ UDPGothic','Yu Gothic UI','Meiryo',sans-serif;
-  background:
-    radial-gradient(circle at 12% 18%, var(--blue-l) 0, transparent 38%),
-    radial-gradient(circle at 88% 12%, var(--pink-l) 0, transparent 40%),
-    radial-gradient(circle at 50% 95%, var(--mint-l) 0, transparent 45%),
-    #fef9f3;
-  min-height:100vh; padding:14px; font-weight:500;
-}
-.wrap{max-width:1060px; margin:0 auto;}
-header{
-  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-  background:var(--paper); border:3px solid #fff; border-radius:22px;
-  box-shadow:0 6px 0 #efe7da, 0 10px 24px rgba(120,100,80,.12);
-  padding:11px 16px; margin-bottom:14px;
-}
-header h1{font-size:1.18rem; margin:0; font-weight:900; letter-spacing:.02em;}
-header .sp{flex:1}
-.badge{font-size:.8rem; font-weight:900; background:var(--yellow-l); color:#a06f00; border-radius:999px; padding:4px 12px;}
-.btn{
-  border:none; border-radius:14px; padding:9px 14px; font-size:.88rem; color:var(--ink);
-  font-family:inherit; font-weight:700; background:var(--mint-l); cursor:pointer;
-  box-shadow:0 4px 0 rgba(0,0,0,.08); transition:.12s;
-}
-.btn:hover{filter:brightness(1.04)}
-.btn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.08);}
-.btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
-.btn.ghost{background:#fff; border:2px solid var(--line);}
-.btn.help{background:var(--purple-l); color:#6b4fb0;}
-.btn.main{background:var(--pink); color:#fff; font-size:1rem; padding:12px 20px;}
-.btn.go{background:var(--mint); font-size:1rem; padding:12px 20px;}
-.btn.tog{background:#fff; border:2px solid var(--line);}
-.btn.tog.on{background:var(--yellow-l); border-color:#eecf7a;}
-.card{
-  background:var(--paper); border:3px solid #fff; border-radius:22px;
-  box-shadow:0 6px 0 #efe7da, 0 10px 24px rgba(120,100,80,.10);
-  padding:16px 18px; margin-bottom:14px;
-}
-.card h2{margin:0 0 10px; font-size:1.02rem; font-weight:900;}
-.lead{font-size:.85rem; color:var(--ink-soft); margin:-4px 0 12px; line-height:1.7;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--g);color:var(--ink);font-family:var(--f-body);min-height:100vh;text-wrap:pretty;word-break:auto-phrase}
+b,strong{word-break:keep-all;overflow-wrap:anywhere}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 16px 6px}
+header h1{font-family:var(--f-head);font-weight:900;font-size:1.35rem;margin:0;color:var(--gInk)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.steps button{font-family:var(--f-head);font-weight:900;font-size:.95rem;border:3px solid transparent;border-radius:999px;
+  background:var(--panel);color:var(--ink);padding:8px 14px;min-height:44px;cursor:pointer}
+.steps button[aria-current="step"]{border-color:var(--line)}
+button{transition:transform .08s}
+button:active{transform:translateY(4px)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+main{padding:6px 16px 20px}
 .screen{display:none}
-.screen.on{display:block; animation:fadein .25s}
-@keyframes fadein{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
-.menu{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px;}
-.menu button{
-  text-align:left; border:3px solid var(--line); border-radius:18px; background:#fff;
-  padding:14px 16px; font-family:inherit; cursor:pointer; color:var(--ink);
-  box-shadow:0 5px 0 #efe7da; transition:.12s;
-}
-.menu button:hover{border-color:var(--pink); box-shadow:0 5px 0 var(--pink-l);}
-.menu button:active{transform:translateY(3px); box-shadow:0 2px 0 #efe7da;}
-.menu .t{font-weight:900; font-size:1rem; display:block; margin-bottom:3px;}
-.menu .d{font-size:.79rem; color:var(--ink-soft); line-height:1.55;}
-.menu .done{font-size:.72rem; color:#2f8f6b; font-weight:900;}
-.feedback{border-radius:16px; padding:12px 15px; font-size:.9rem; line-height:1.7;
-  border:2px dashed var(--line); background:#fff; margin-top:12px;}
-.feedback.ok{background:var(--mint-l); border-color:#8ed3b6; border-style:solid;}
-.feedback.ng{background:var(--pink-l); border-color:#f2a9bb; border-style:solid;}
-.feedback.hint{background:var(--yellow-l); border-color:#eecf7a;}
-.feedback b{font-weight:900}
-.modal{position:fixed; inset:0; background:rgba(74,68,88,.45); display:none;
-  align-items:center; justify-content:center; padding:18px; z-index:50;}
-.modal.show{display:flex}
-.modal .box{background:var(--paper); border-radius:24px; max-width:560px; width:100%;
-  padding:22px 24px; box-shadow:0 12px 40px rgba(0,0,0,.25); max-height:88vh; overflow:auto;}
-.modal h3{margin:0 0 10px; font-weight:900}
-.modal p,.modal li{font-size:.88rem; line-height:1.75}
-.toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px);
-  opacity:0; background:var(--ink); color:#fff; padding:11px 20px; border-radius:999px;
-  font-weight:700; font-size:.9rem; transition:.25s; pointer-events:none; z-index:60;}
-.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
-.choices{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;}
-.choices button{
-  padding:16px; font-size:1rem; font-weight:700; font-family:inherit; cursor:pointer;
-  border:3px solid var(--line); border-radius:16px; background:#fff; color:var(--ink);
-  box-shadow:0 4px 0 #efe7da;
-}
-.choices button:active{transform:translateY(3px); box-shadow:0 1px 0 #efe7da;}
-.choices button:disabled{opacity:.55}
-.choices button.chosen{opacity:1; border-color:#f2a9bb; background:var(--pink-l);}
-.choices button.correct{opacity:1; border-color:#8ed3b6; background:var(--mint-l);}
-.choices button.correct::after{content:' ○'; font-weight:900; color:#2f8f6b;}
-.choices button.chosen.correct{border-color:#8ed3b6; background:var(--mint-l);}
-
-/* ══ 3D画面 ══ */
-.stage{display:grid; grid-template-columns:1fr 250px; gap:12px; align-items:start;}
-#cv3d{width:100%; border-radius:18px; background:#171b2e; display:block; touch-action:none; cursor:grab;}
-.side{display:flex; flex-direction:column; gap:8px;}
-.info3d{background:#fff; border:2px solid var(--line); border-radius:16px; padding:12px 14px;
-  font-size:.85rem; line-height:1.7; min-height:120px;}
-.info3d .nm{font-weight:900; font-size:1.02rem;}
-.bloodtag{display:inline-block; border-radius:999px; padding:2px 10px; font-size:.75rem; font-weight:900; color:#fff;}
-.bloodtag.a{background:var(--art);} .bloodtag.v{background:var(--ven);}
-.plist{display:flex; flex-wrap:wrap; gap:5px; margin-top:4px;}
-.pchip{font-size:.72rem; border:2px solid var(--line); border-radius:999px; padding:2px 9px; background:#fff; color:var(--ink-soft);}
-.pchip.seen{border-color:#8ed3b6; color:#2f8f6b; font-weight:700;}
-
-/* ══ 循環画面 ══ */
-.flowgrid{display:grid; grid-template-columns:1fr 250px; gap:12px; align-items:start;}
-#flowsvg{width:100%; border-radius:18px; background:#fff; border:2px solid var(--line); display:block;}
-.legend{display:flex; gap:12px; font-size:.78rem; font-weight:700; margin-top:6px; flex-wrap:wrap;}
-.legend .sw{display:inline-block; width:14px; height:14px; border-radius:50%; vertical-align:-2px; margin-right:3px;}
-
-@media(max-width:760px){
-  .stage,.flowgrid{grid-template-columns:1fr}
-  body{padding:9px}
-  header h1{font-size:1.04rem}
-  .choices{grid-template-columns:1fr}
-}
-/* ボタンが1つ増えたぶん、せまい画面ではヘッダーを小さくして1行に収める */
-@media(max-width:820px){
-  header{padding:8px 12px !important; gap:6px !important;}
-  header .btn{font-size:.78rem !important; padding:7px 9px !important; min-height:32px !important;}
-  header h1{font-size:1rem !important;}
-}
+.screen.on{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+@media (max-width:860px){.screen.on{grid-template-columns:minmax(0,1fr)}}
+.fig{min-width:0;display:flex;justify-content:center;background:var(--panel);border-radius:18px;padding:10px}
+.fig svg{width:100%;max-height:calc(100vh - 120px);height:auto;display:block}
+.side{background:var(--panel);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.side h2{font-family:var(--f-head);font-weight:900;font-size:1.3rem;margin:0;line-height:1.35}
+.side p{margin:0;line-height:1.75;font-size:1rem}
+.side .note{font-size:.82rem;color:var(--sub)}
+.big{font-family:var(--f-head);font-weight:900;font-size:1.05rem;border:0;border-radius:999px;padding:13px 18px;
+  min-height:48px;background:var(--ink);color:#fff;cursor:pointer}
+.ghost{font-family:var(--f-head);font-weight:900;font-size:.95rem;border:3px solid transparent;border-radius:999px;padding:9px 14px;
+  min-height:44px;background:#efe4cc;color:var(--ink);cursor:pointer}
+.ghost[aria-pressed="true"]{border-color:var(--line)}
+.ghost:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+[hidden]{display:none!important}
+#ansBox{font-size:.95rem;line-height:1.6}
+.nw{white-space:nowrap}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper .dots{display:flex;gap:5px;flex:1;flex-wrap:wrap}
+.stepper .dots i{width:12px;height:12px;border-radius:50%;background:#e6d6b4;display:block}
+.stepper .dots i.on{background:var(--ink)}
+.say{background:#fff;border-radius:14px;padding:12px 14px;line-height:1.75;font-size:1rem}
+.say b.a{color:var(--art)} .say b.v{color:var(--ven)}
+.tag{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:700;font-size:.85rem;color:#fff}
+.tag.a{background:var(--art)} .tag.v{background:var(--ven)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chips span{font-size:.85rem;border-radius:999px;padding:4px 10px;background:#efe4cc;border:2px solid transparent}
+.chips span.seen{border-color:var(--line);font-weight:700}
+#cv3d{width:100%;display:block;border-radius:12px;touch-action:none;cursor:grab;background:var(--panel)}
+.lbl{font-family:var(--f-head);font-weight:900;fill:var(--ink)}
+.a-t{fill:var(--art)} .v-t{fill:var(--ven)}
+/* ③ 断面の段階 */
+#heartX .s1,#heartX .s2,#heartX .s3,#heartX .s4,#heartX .s5,#heartX .s6{opacity:0;transition:opacity .35s}
+#heartX[data-s="1"] .s1,#heartX[data-s="2"] .s1,#heartX[data-s="2"] .s2,
+#heartX[data-s="3"] .s3,#heartX[data-s="4"] .s3,#heartX[data-s="5"] .s3,#heartX[data-s="6"] .s3,
+#heartX[data-s="4"] .s4,#heartX[data-s="5"] .s4,#heartX[data-s="6"] .s4,
+#heartX[data-s="5"] .s5,#heartX[data-s="6"] .s6{opacity:1}
+#heartX .ring{opacity:0;transition:opacity .3s}
+#heartX .narrow{display:none}
+@media (max-width:600px){#heartX .wide{display:none} #heartX .narrow{display:inline}
+  #circ .st1 text,#circ5 .st1 text{font-size:15px} #circ .st7 text{font-size:14px} #circ .st7 text[font-size="12"]{font-size:13.5px}}
+#heartX.ph1 .ring.atrium,#heartX.ph2 .ring.atrium,#heartX.ph3 .ring.ventricle{opacity:1}
+.flow{stroke-dasharray:10 9}
+#heartX.ph1 .f1,#heartX.ph2 .f2,#heartX.ph3 .f3{animation:dash .6s linear infinite}
+#heartX[class*="ph"] .flowg{opacity:.25} #heartX.ph1 .f1g,#heartX.ph2 .f2g,#heartX.ph3 .f3g{opacity:1}
+@keyframes dash{to{stroke-dashoffset:-19}}
+/* ④ 循環の段階 */
+.c{opacity:0;transition:opacity .35s}
+.c.show{opacity:1}
+#circ.only-body .pul{opacity:.15} #circ.only-lung .sys{opacity:.15}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-
 <header>
-  <h1>🫀 しんぞうポンプラボ</h1>
-  <span class="badge" id="badge" hidden></span>
-  <span class="sp"></span>
-  <button class="btn ghost" id="soundBtn" onclick="toggleSound()">🔊 音</button>
-  <button class="btn help" onclick="openModal('helpModal')">？ つかいかた</button>
-  <button class="btn ghost" id="navBackBtn" onclick="backOne()" disabled>← もどる</button>
-  <button class="btn ghost" onclick="goHome()">🏠 さいしょ</button>
+  <h1>しんぞうポンプラボ</h1>
+  <nav class="steps" aria-label="画面">
+    <button data-go="1">1 からだをめぐる</button>
+    <button data-go="2">2 3Dの心臓</button>
+    <button data-go="3">3 心臓の断面</button>
+    <button data-go="4">4 循環の図</button>
+    <button data-go="5">5 肺動脈のなぞ</button>
+  </nav>
 </header>
+<main>
 
-<!-- ══════ ホーム ══════ -->
-<section class="screen on" id="s-home">
-  <div class="card">
-    <h2>なにをする？</h2>
-    <p class="lead">①→②→③の順がおすすめ。最後の「なぞ」に答えられたらこの章はばっちり。</p>
-    <div class="menu">
-      <button onclick="go3d()">
-        <span class="t">① 3Dしんぞうを調べる</span>
-        <span class="d">本物のデータで作った心臓を回して、4つの部屋と太い血管をタップしてたしかめる。</span>
-        <span class="done" id="done-3d"></span>
-      </button>
-      <button onclick="goFlow()">
-        <span class="t">② 血液をながす</span>
-        <span class="d">体循環と肺循環。血液の赤と青がどこで入れかわるかを見る。</span>
-        <span class="done" id="done-flow"></span>
-      </button>
-      <button onclick="startQuiz()">
-        <span class="t">③ 肺動脈のなぞ</span>
-        <span class="d">「肺動脈に流れているのは静脈血」…なぜ？ 自分の言葉で説明できたらクリア。</span>
-        <span class="done" id="done-quiz"></span>
-      </button>
-    </div>
+<!-- ══════ 1 からだをめぐる ══════ -->
+<section class="screen" id="s1">
+  <div class="fig" style="background:#0e1d34"><svg id="bodySvg" viewBox="0 0 572 1024" role="img" aria-label="全身の血管と心臓の拍動" style="max-height:calc(100vh - 110px)">
+    <!-- 全身の絵：Gemini で生成（2026-10-11）。粒と拍動だけをここで動かす -->
+    <image href="body_base.png" x="0" y="0" width="572" height="1024"/>
+    <g id="b1dotsV" fill="#c4e0ff" stroke="#123a7a" stroke-width="1.6"></g><g id="b1dotsA" fill="#ffc2c9" stroke="#8a1020" stroke-width="1.6"></g>
+    <g id="b1heartG"><image href="body_heart.png" x="236" y="260" width="121" height="157"/></g>
+    <g font-family="Zen Maru Gothic,sans-serif" font-weight="900" font-size="30" fill="#f4ece0">
+      <path d="M368,146 L319,162 M122,426 L139,439 M448,364 L354,350" stroke="#b9c3d6" stroke-width="2" fill="none"/>
+      <circle cx="319" cy="162" r="3.5" fill="#b9c3d6"/><circle cx="139" cy="439" r="3.5" fill="#b9c3d6"/><circle cx="354" cy="350" r="3.5" fill="#b9c3d6"/>
+      <text x="372" y="156">静脈</text><text x="118" y="434" text-anchor="end">動脈</text><text x="452" y="374">心臓</text>
+    </g>
+  </svg></div>
+  <div class="side">
+    <h2>血液は からだを めぐる</h2>
+    <p>心臓が<b>ちぢむたびに</b>、<br>血液が押し出される。<br>赤いつぶは、どこで青に変わる？</p>
+    <div class="say"><span class="tag a">赤</span> 酸素を多くふくむ血液（動脈血）<br><span class="tag v">青</span> 酸素の少ない血液（静脈血）</div>
+    <div class="row"><button class="ghost" id="b1rest" aria-pressed="true">安静</button><button class="ghost" id="b1run" aria-pressed="false">走ったあと</button><button class="ghost" id="b1pause" aria-pressed="false">とめる</button></div>
+    <p class="note">正面から見た図です。<br>からだの右側が、画面では左に見えます。</p>
+    <button class="big" data-go="2">心臓を見に行く →</button>
   </div>
 </section>
 
-<!-- ══════ ① 3D ══════ -->
-<section class="screen" id="s-3d">
-  <div class="card">
-    <h2>① 3Dしんぞうを調べる <span style="font-weight:500;font-size:.78rem;color:var(--ink-soft)">ドラッグで回転・ホイールで拡大・部屋や血管をタップ</span></h2>
-    <div class="stage">
-      <canvas id="cv3d"></canvas>
-      <div class="side">
-        <div class="info3d" id="info3d">
-          <div class="nm">タップしてみよう</div>
-          <div>色は<b>血の色</b>：<span class="bloodtag a">動脈血</span> 酸素が多い ／ <span class="bloodtag v">静脈血</span> 酸素が少ない</div>
-        </div>
-        <button class="btn tog on" id="beatBtn" onclick="toggleBeat()">💓 拍動 ON</button>
-        <button class="btn ghost" onclick="resetCam()">🔄 向きをもどす</button>
-        <div class="info3d" style="min-height:auto">
-          <div style="font-weight:900; font-size:.8rem;">見つけた場所 <span id="seenCount">0/8</span></div>
-          <div class="plist" id="plist"></div>
-        </div>
-        <button class="btn go" onclick="goFlow()">② 血液をながす →</button>
-      </div>
-    </div>
+<!-- ══════ 2 3Dの心臓 ══════ -->
+<section class="screen" id="s2">
+  <div class="fig" id="stage3d"><canvas id="cv3d" aria-label="3Dの心臓。ドラッグで回す、タップで名前"></canvas></div>
+  <div class="side">
+    <h2>3Dの心臓</h2>
+    <p class="note">ドラッグで回す・ホイールで拡大・部屋や血管をタップ</p>
+    <div class="say" id="info3d"><b>タップしてみよう</b><br>色は血液の色：<span class="tag a">動脈血</span> <span class="tag v">静脈血</span></div>
+    <div><b>見つけた場所 <span id="seenCount">0/8</span></b><div class="chips" id="chips"></div></div>
+    <div class="row"><button class="ghost" id="beatBtn" aria-pressed="true">拍動</button><button class="ghost" id="resetBtn">正面にもどす</button></div>
+    <p class="note">3Dデータ：BodyParts3D, © ライフサイエンス統合データベースセンター（<span class="nw">CC BY-SA 2.1 JP</span>）</p>
+    <button class="big" data-go="3">心臓を切ってみる →</button>
   </div>
 </section>
 
-<!-- ══════ ② 循環 ══════ -->
-<section class="screen" id="s-flow">
-  <div class="card">
-    <h2>② 血液をながす <span style="font-weight:500;font-size:.78rem;color:var(--ink-soft)">どこで赤⇄青が入れかわる？</span></h2>
-    <div class="flowgrid">
-      <div>
-        <svg id="flowsvg" viewBox="0 0 640 560"></svg>
-        <div class="legend">
-          <span><span class="sw" style="background:var(--art)"></span>動脈血（酸素が多い）</span>
-          <span><span class="sw" style="background:var(--ven)"></span>静脈血（酸素が少ない）</span>
-        </div>
-      </div>
-      <div class="side">
-        <button class="btn tog on" id="playBtn" onclick="toggleFlow()">⏸ とめる</button>
-        <button class="btn tog" id="hl-tai" onclick="setCircuit('tai')">🟠 体循環だけ光らせる</button>
-        <button class="btn tog" id="hl-hai" onclick="setCircuit('hai')">🩵 肺循環だけ光らせる</button>
-        <button class="btn tog on" id="lblBtn" onclick="toggleLabels()">🏷️ 名前を表示</button>
-        <div class="info3d" id="flowinfo" style="min-height:auto; font-size:.8rem;">
-          血液は<b>心臓→肺→心臓→全身→心臓</b>と、<b>心臓を2回通って</b>1周する。赤⇄青が入れかわるのは<b>肺</b>と<b>全身の細胞</b>のところ。
-        </div>
-        <button class="btn go" onclick="startQuiz()">③ なぞに挑戦 →</button>
-      </div>
+<!-- ══════ 3 心臓の断面 ══════ -->
+<section class="screen" id="s3">
+  <div class="fig"><svg id="heartX" data-s="1" viewBox="-250 -40 1530 810" role="img" aria-label="心臓の断面図">
+    <!-- 断面の絵：Gemini で生成（2026-10-11）。座標は絵の画素（1024×765）のまま重ねる -->
+    <image href="heart_section.png" x="0" y="0" width="1024" height="765"/>
+    <!-- 部屋をかこむ輪（③の動き：動いている部屋） -->
+    <g fill="none" stroke="var(--ink)" stroke-width="7">
+      <ellipse class="ring atrium" cx="350" cy="420" rx="95" ry="130"/>
+      <ellipse class="ring atrium" cx="640" cy="320" rx="85" ry="62"/>
+      <ellipse class="ring ventricle" cx="530" cy="590" rx="140" ry="80"/>
+      <ellipse class="ring ventricle" cx="680" cy="530" rx="68" ry="110"/>
+    </g>
+    <!-- 1：上と下（心房／心室） -->
+    <g class="s1"><path d="M220,580 L810,388" stroke="var(--ink)" stroke-width="5" stroke-dasharray="16 12"/>
+      <g class="wide"><text class="lbl" x="-240" y="250" font-size="34">上の部屋＝<tspan class="a-t">心房</tspan></text>
+      <text class="lbl" x="-240" y="294" font-size="28">血液が もどってくる部屋</text>
+      <text class="lbl" x="-240" y="640" font-size="34">下の部屋＝<tspan class="a-t">心室</tspan></text>
+      <text class="lbl" x="-240" y="684" font-size="28">血液が 出ていく部屋</text></g>
+      <g class="narrow"><text class="lbl" x="160" y="12" font-size="36">上＝<tspan class="a-t">心房</tspan></text><text class="lbl" x="160" y="762" font-size="36">下＝<tspan class="a-t">心室</tspan></text></g></g>
+    <!-- 2：左と右 -->
+    <g class="s2"><path d="M470,140 L690,730" stroke="var(--ink)" stroke-width="5" stroke-dasharray="16 12"/>
+      <g class="wide"><text class="lbl" x="-240" y="440" font-size="30">持ち主から見て</text><text class="lbl v-t" x="-240" y="494" font-size="40">右側</text>
+      <text class="lbl" x="1010" y="440" font-size="30">持ち主から見て</text><text class="lbl a-t" x="1010" y="494" font-size="40">左側</text></g>
+      <g class="narrow"><text class="lbl v-t" x="156" y="440" font-size="40">右側</text><text class="lbl a-t" x="826" y="470" font-size="40">左側</text></g></g>
+    <!-- 3：部屋の名前 -->
+    <g class="s3" font-size="34">
+      <text class="lbl v-t" x="350" y="452" text-anchor="middle">右心房</text>
+      <text class="lbl v-t" x="580" y="640" text-anchor="middle">右心室</text>
+      <path d="M662,318 L812,372" stroke="var(--art)" stroke-width="3"/><text class="lbl a-t" x="818" y="384" font-size="30">左心房</text>
+      <text class="lbl a-t" x="684" y="540" text-anchor="middle">左心室</text></g>
+    <!-- 4：血液の流れ -->
+    <defs>
+      <marker id="mv" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--ven)"/></marker>
+      <marker id="ma" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--art)"/></marker>
+    </defs>
+    <g class="s4" fill="none" stroke-width="11" stroke-linecap="round">
+      <g class="flowg f1g"><path class="flow f1" d="M345,140 L345,320" stroke="var(--ven)" marker-end="url(#mv)"/>
+        <path class="flow f1" d="M332,740 L332,575" stroke="var(--ven)" marker-end="url(#mv)"/>
+        <path class="flow f1" d="M790,262 L712,300" stroke="var(--art)" marker-end="url(#ma)"/></g>
+      <g class="flowg f2g"><path class="flow f2" d="M380,480 L470,575" stroke="var(--ven)" marker-end="url(#mv)"/>
+        <path class="flow f2" d="M650,340 L668,470" stroke="var(--art)" marker-end="url(#ma)"/></g>
+      <g class="flowg f3g"><path class="flow f3" d="M520,560 C500,500 492,440 498,380 C504,300 512,240 560,205 C600,185 650,180 700,176" stroke="var(--ven)" marker-end="url(#mv)"/>
+        <path class="flow f3" d="M632,560 C600,480 575,440 560,400 C540,340 470,320 456,240 C444,170 470,120 520,104" stroke="var(--art)" marker-end="url(#ma)"/></g>
+      <text class="lbl v-t" x="200" y="110" font-size="30" stroke="none">静脈</text>
+      <text class="lbl v-t" x="200" y="730" font-size="30" stroke="none">静脈</text>
+      <text class="lbl" x="745" y="160" font-size="30" stroke="none">肺<tspan class="a-t">動脈</tspan></text>
+      <text class="lbl" x="790" y="320" font-size="30" stroke="none">肺<tspan class="v-t">静脈</tspan></text>
+      <text class="lbl a-t" x="624" y="64" font-size="30" stroke="none">動脈</text></g>
+    <!-- 5：弁 -->
+    <g class="s5" fill="none" stroke="var(--ink)" stroke-width="5">
+      <circle cx="440" cy="520" r="34"/><circle cx="490" cy="415" r="40"/><circle cx="568" cy="408" r="38"/><circle cx="655" cy="418" r="36"/>
+      <g class="wide"><text class="lbl" x="-240" y="120" font-size="34" stroke="none">○＝<tspan class="a-t">弁</tspan></text>
+      <text class="lbl" x="-240" y="164" font-size="28" stroke="none">血液の逆流を防ぐ</text></g>
+      <g class="narrow"><text class="lbl" x="160" y="12" font-size="36" stroke="none">○＝<tspan class="a-t">弁</tspan></text></g></g>
+    <!-- 6：全身へ・左心室のかべ -->
+    <g class="s6">
+      <path d="M447,40 L434,-4" stroke="var(--art)" stroke-width="9" stroke-linecap="round" fill="none" marker-end="url(#ma)"/><path d="M529,30 L529,-12" stroke="var(--art)" stroke-width="9" stroke-linecap="round" fill="none" marker-end="url(#ma)"/><path d="M590,40 L604,-4" stroke="var(--art)" stroke-width="9" stroke-linecap="round" fill="none" marker-end="url(#ma)"/>
+      <text class="lbl a-t" x="624" y="20" font-size="32">全身へ</text>
+      <g class="wide"><path d="M770,560 L1000,600" stroke="var(--ink)" stroke-width="4"/>
+      <text class="lbl" x="1010" y="600" font-size="30">左心室のかべが</text><text class="lbl" x="1010" y="640" font-size="30">いちばん厚い</text></g>
+      <g class="narrow"><path d="M772,640 L830,700" stroke="var(--ink)" stroke-width="4"/><text class="lbl" x="806" y="736" font-size="30">かべが</text><text class="lbl" x="806" y="778" font-size="30">厚い</text></g></g>
+</svg></div>
+  <div class="side">
+    <h2 id="h3">心臓を切ってみると…</h2>
+    <div class="say" id="say3"></div>
+    <div class="stepper"><button class="ghost" id="prev3">◀ もどる</button><div class="dots" id="dots3"></div><button class="big" id="next3">つぎ ▶</button></div>
+    <div id="why3" hidden class="row"><button class="ghost" id="whyBtn">なぜ？の答え</button></div>
+    <div id="pump3" hidden>
+      <p><b>心臓を動かしてみよう</b><br>（教科書 p.138 図2）</p>
+      <div class="row"><button class="ghost" data-ph="1">① 心房が広がる</button><button class="ghost" data-ph="2">② 心房が縮む</button><button class="ghost" data-ph="3">③ 心室が縮む</button><button class="ghost" id="autoPump" aria-pressed="false">くり返し動かす</button></div>
     </div>
+    <button class="big" data-go="4">循環の図へ →</button>
   </div>
 </section>
 
-<!-- ══════ ③ クイズ ══════ -->
-<section class="screen" id="s-quiz">
-  <div class="card">
-    <h2 id="q-title">問題</h2>
-    <p class="lead" id="q-text"></p>
-    <div class="choices" id="q-choices"></div>
-    <div id="q-feedback"></div>
-    <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap">
-      <button class="btn go" id="q-next" onclick="nextQ()" hidden>つぎへ →</button>
-      <button class="btn ghost" onclick="goHome()">やめる</button>
+<!-- ══════ 4 循環の図 ══════ -->
+<section class="screen" id="s4">
+  <div class="fig"><svg id="circ" viewBox="0 -24 420 510" role="img" aria-label="血液の循環の図"></svg></div>
+  <div class="side">
+    <h2 id="h4">血液の通り道</h2>
+    <div class="say" id="say4"></div>
+    <div class="stepper"><button class="ghost" id="prev4">◀ もどる</button><div class="dots" id="dots4"></div><button class="big" id="next4">つぎ ▶</button></div>
+    <div class="row" id="ctl4" hidden>
+      <button class="ghost" id="flowBtn" aria-pressed="true">血液を流す</button>
+      <button class="ghost" data-only="body" aria-pressed="false">体循環だけ</button>
+      <button class="ghost" data-only="lung" aria-pressed="false">肺循環だけ</button>
     </div>
+    <div class="say" id="legend4" hidden><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--o2);border:1.5px solid var(--ink);vertical-align:-1px"></span> 酸素　<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--co2);vertical-align:-1px"></span> 二酸化炭素</div>
+    <button class="big" data-go="5">肺動脈のなぞへ →</button>
   </div>
 </section>
 
-<!-- ══════ ③' 説明チャレンジ ══════ -->
-<section class="screen" id="s-explain">
-  <div class="card">
-    <h2>さいごの問い（教科書p.140と同じ問い）</h2>
-    <p class="lead" style="font-size:.95rem">「<b>肺動脈</b>」には<b>動脈</b>という言葉が使われているのに、流れている血液は<b>静脈血</b>。<br>その理由を、となりの人に説明するつもりで<b>声に出して</b>（または頭の中で）言ってみよう。</p>
-    <div class="feedback hint">ヒント：「動脈・静脈」は<b>何の名前</b>？ 「動脈血・静脈血」は<b>何の名前</b>？</div>
-    <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap">
-      <button class="btn main" onclick="showAnswer()">言えた！ 答え合わせ</button>
-      <button class="btn ghost" onclick="goHome()">さいしょへ</button>
-    </div>
-    <div id="ex-answer" hidden>
-      <div class="feedback ok" style="margin-top:14px">
-        <b>答えの例</b><br>
-        ・「動脈／静脈」は<b>血管の名前</b>。心臓から<b>出る</b>血管が動脈、心臓に<b>もどる</b>血管が静脈。<br>
-        ・「動脈血／静脈血」は<b>血液の中身の名前</b>。酸素が<b>多い</b>血液が動脈血、<b>少ない</b>血液が静脈血。<br>
-        ・肺動脈は右心室から<b>出る</b>血管だから「動脈」。でも中の血液は<b>これから肺で酸素をもらう前</b>だから、酸素が少ない<b>静脈血</b>。<br>
-        → 名前のつけかたのルールが<b>2種類ある</b>だけで、矛盾していない！（肺静脈はその逆で、動脈血が流れる）
-      </div>
-      <button class="btn go" style="margin-top:12px" onclick="finishAll()">✅ 説明できた！</button>
+<!-- ══════ 5 肺動脈のなぞ ══════ -->
+<section class="screen" id="s5">
+  <div class="fig"><svg id="circ5" viewBox="0 -24 420 510" role="img" aria-label="血液の循環の図（名前つき）"></svg></div>
+  <div class="side">
+    <h2>肺動脈のなぞ</h2>
+    <div class="say">「肺<b class="a">動脈</b>」という名前なのに、流れているのは <b class="v">静脈血</b>。<br>「肺<b class="v">静脈</b>」には <b class="a">動脈血</b> が流れている。<br><b>なぜだろう？</b><br><span class="note">（教科書 p.140「説明しよう」）</span></div>
+    <p id="ask5">となりの人に説明するつもりで、声に出して言ってみよう。</p>
+    <div class="row" id="hintRow"><button class="ghost" id="hint1">ヒント1</button><button class="ghost" id="hint2">ヒント2</button></div>
+    <div class="say" id="hintBox" hidden></div>
+    <button class="big" id="ansBtn">言えた！ 答えを見る</button>
+    <div class="say" id="ansBox" hidden>
+      ・「<b>動脈・静脈</b>」は<b>血管</b>の名前。心臓から<b>出ていく</b>血管が動脈、心臓に<b>もどる</b>血管が静脈。<br>
+      ・「<b>動脈血・静脈血</b>」は<b>血液</b>の名前。酸素が<b>多い</b>血液が動脈血、<b>少ない</b>血液が静脈血。<br>
+      ・肺動脈は、右心室から<b>出て</b>肺へ向かうので「動脈」。でも中の血液は、全身の細胞に酸素をわたして、<span class="nw">もどってきた</span>ばかりで、肺で酸素を受けとる前なので「静脈血」。<br>
+      ・肺静脈はその逆。肺で酸素を受けとった血液（動脈血）が、心臓に<b>もどる</b>血管<span class="nw">（静脈）を</span>流れる。
     </div>
   </div>
 </section>
+</main>
 
-<!-- ══════ 結果 ══════ -->
-<section class="screen" id="s-result">
-  <div class="card" style="text-align:center">
-    <h2>けっか</h2>
-    <div style="font-size:2.6rem; font-weight:900; margin:10px 0" id="r-score">–</div>
-    <p class="lead" id="r-msg" style="text-align:center"></p>
-    <button class="btn main" onclick="startQuiz()">もういちど</button>
-    <button class="btn ghost" onclick="goHome()">さいしょへ</button>
-  </div>
-</section>
-
-<!-- ══════ モーダル ══════ -->
-<div class="modal" id="helpModal"><div class="box">
-  <h3>つかいかた</h3>
-  <p>① 3Dの心臓をドラッグで回して、部屋や血管をタップ。8か所ぜんぶ見つけよう。<br>
-  ② 「血液をながす」で赤⇄青が入れかわる場所をさがそう。<br>
-  ③ クイズのさいごに「肺動脈のなぞ」がまってるよ。</p>
-  <p style="color:var(--ink-soft); font-size:.75rem">3Dデータ: BodyParts3D, © ライフサイエンス統合データベースセンター (CC BY-SA 2.1 JP)</p>
-  <button class="btn go" onclick="closeModal('helpModal')">とじる</button>
-</div></div>
-
-<div class="toast" id="toast"></div>
-</div>
-
+<script src="three.min.js"></script>
 <script>
-/* ══════ 共通ユーティリティ ══════ */
-const APP_KEY = 'shinzo_lab';
-/* ← もどる：1つ前の画面にもどる（🏠 さいしょ＝ホームへ、とは別） */
-var NAV = [], NAV_BACK = false;
-function backOne(){
-  if(typeof ensureAudio === 'function') ensureAudio();
-  if(typeof sfx === 'function') sfx('click');
-  /* 動いているアニメは止めてから移る */
-  ['stopAnim','stopOrbit','stopAllTimers','raceStop','playStop','slopeStop','modelPause','pcStop','stopAll']
-    .forEach(function(f){ if(typeof window[f] === 'function'){ try{ window[f](); }catch(e){} } });
-  var prev = NAV.pop();
-  if(!prev || prev === 's-home'){ NAV = []; goHome(); return; }
-  NAV_BACK = true; showScreen(prev); NAV_BACK = false;
-}
-function showScreen(id){
-  var __cur = (document.querySelector('.screen.on') || {}).id;
-  if(!NAV_BACK && __cur && __cur !== id) NAV.push(__cur);
-  var __bb = document.getElementById('navBackBtn'); if(__bb) __bb.disabled = (id === 's-home');
+const NS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+const ART="#e0283f", VEN="#2f63c8";
+const mix=(c1,c2,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const a=p(c1),b=p(c2);
+  return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+const GROUND={navy:['#15233f','#f4ece0'],kinari:['#f4ece0','#2b2118'],mint:['#bfe6d6','#2b2118']};
+(function(){ const k=location.hash.slice(1); if(GROUND[k]){ document.documentElement.style.setProperty('--g',GROUND[k][0]); document.documentElement.style.setProperty('--gInk',GROUND[k][1]); } })();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
-  window.scrollTo({top:0, behavior:'smooth'});
+/* ── 画面の切りかえ ── */
+let cur=1;
+function go(n){
+  cur=n; document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==='s'+n));
+  document.querySelectorAll('.steps button').forEach(b=>{ if(+b.dataset.go===n) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); });
+  if(n===2) init3d();
+  scrollTo(0,0);
 }
-function goHome(){ ensureAudio(); sfx('click'); showScreen('s-home'); renderHome(); }
-function openModal(id){ document.getElementById(id).classList.add('show'); }
-function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-document.addEventListener('click', e=>{ if(e.target.classList.contains('modal')) e.target.classList.remove('show'); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show')); });
-let toastT;
-function toast(msg){
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), 2000);
-}
-let AC=null, soundOn=true;
-try{ soundOn = localStorage.getItem(APP_KEY+'_sound')!=='off'; }catch(e){}
-function ensureAudio(){
-  if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
-  if(AC && AC.state==='suspended') AC.resume();
-}
-function tone(freq,dur,type,vol,delay){
-  if(!AC||!soundOn) return;
-  const t0=AC.currentTime+(delay||0);
-  const o=AC.createOscillator(), g=AC.createGain();
-  o.type=type||'sine'; o.frequency.value=freq;
-  g.gain.setValueAtTime(0,t0);
-  g.gain.linearRampToValueAtTime(vol||.14, t0+.012);
-  g.gain.exponentialRampToValueAtTime(.0001, t0+dur);
-  o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0+dur+.02);
-}
-function sfx(name){
-  ensureAudio();
-  if(name==='click') tone(660,.07,'triangle',.09);
-  if(name==='ok'){ tone(784,.12,'sine',.14); tone(1047,.18,'sine',.12,.10); }
-  if(name==='ng') tone(196,.22,'sawtooth',.07);
-  if(name==='clear'){ [523,659,784,1047].forEach((f,i)=>tone(f,.22,'sine',.13,i*.09)); }
-}
-function toggleSound(){
-  soundOn=!soundOn;
-  try{ localStorage.setItem(APP_KEY+'_sound', soundOn?'on':'off'); }catch(e){}
-  document.getElementById('soundBtn').textContent = soundOn?'🔊 音':'🔇 音';
-  if(soundOn){ ensureAudio(); sfx('click'); }
-}
-function loadProgress(){ try{ return JSON.parse(localStorage.getItem(APP_KEY+'_prog')||'{}'); }catch(e){ return {}; } }
-function saveProgress(p){ try{ localStorage.setItem(APP_KEY+'_prog', JSON.stringify(p)); }catch(e){} }
-function markDone(key){ const p=loadProgress(); p[key]=true; saveProgress(p); }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.go)));
 
-/* ══════ ① 3D心臓 ══════ */
-/* blood: 'a'=動脈血(赤) 'v'=静脈血(青)  ← 右心系は静脈血・左心系は動脈血（教科書図1準拠） */
-const PARTS3D = [
-  {id:'right_atrium',    nm:'右心房', blood:'v', role:'全身から<b>大静脈</b>で帰ってきた血液を受け取る部屋。'},
-  {id:'right_ventricle', nm:'右心室', blood:'v', role:'<b>肺</b>へ血液を送り出す部屋。ここから出る血管が肺動脈。'},
-  {id:'left_atrium',     nm:'左心房', blood:'a', role:'肺から<b>肺静脈</b>で帰ってきた血液を受け取る部屋。'},
-  {id:'left_ventricle',  nm:'左心室', blood:'a', role:'<b>全身</b>へ血液を送り出す部屋。かべの筋肉がいちばん厚い。'},
-  {id:'aorta',           nm:'大動脈', blood:'a', role:'左心室から<b>出て</b>全身へ向かう血管。動脈血が流れる。'},
-  {id:'pulmonary_artery',nm:'肺動脈', blood:'v', role:'右心室から<b>出て</b>肺へ向かう血管。<b>流れているのは静脈血！</b>'},
-  {id:'vena_cava',       nm:'大静脈', blood:'v', role:'全身から心臓に<b>もどる</b>血管。静脈血が流れる。'},
-  {id:'pulmonary_vein',  nm:'肺静脈', blood:'a', role:'肺から心臓に<b>もどる</b>血管。<b>流れているのは動脈血！</b>'},
+/* ── 道（点列）を長さつきにする。kind: v＝静脈血 / a＝動脈血 / va＝肺で青→赤 / av＝細胞で赤→青 ── */
+function bake(segs){
+  const out=[];let total=0;
+  segs.forEach(([kind,pts])=>{ for(let i=0;i<pts.length-1;i++){const [x1,y1]=pts[i],[x2,y2]=pts[i+1],len=Math.hypot(x2-x1,y2-y1);
+    out.push({kind,x1,y1,x2,y2,len,start:total});total+=len;} });
+  ['va','av'].forEach(k=>{const ss=out.filter(s=>s.kind===k); if(!ss.length)return; const a=ss[0].start,b=ss[ss.length-1].start+ss[ss.length-1].len; ss.forEach(s=>{s.k0=a;s.k1=b});});
+  return {segs:out,total};
+}
+function posAt(rt,d){
+  d=((d%rt.total)+rt.total)%rt.total;
+  for(const s of rt.segs){ if(d<=s.start+s.len){const t=(d-s.start)/s.len, x=s.x1+(s.x2-s.x1)*t, y=s.y1+(s.y2-s.y1)*t;
+    return {x,y,kind:s.kind,u:s.k0!==undefined?(d-s.k0)/(s.k1-s.k0):null};}}
+  const s=rt.segs[0]; return {x:s.x1,y:s.y1,kind:s.kind,u:null};
+}
+const colorOf=p=>p.kind==='v'?VEN:p.kind==='a'?ART:p.kind==='va'?mix(VEN,ART,p.u):mix(ART,VEN,p.u);
+
+/* ══════ 1 からだをめぐる（絵は Gemini。粒の移動と心臓の拍動だけをここで動かす） ══════ */
+(function(){
+  const DATA = {"routes": [{"name": "頭L", "n": 2, "art": [[284.2, 261.2], [276.8, 256.4], [272.4, 250.0], [271.8, 241.7], [273.1, 232.8], [274.1, 223.9], [274.3, 215.0], [273.8, 206.0], [273.0, 197.1], [272.4, 188.1], [271.1, 179.3], [269.0, 170.6], [265.8, 162.3], [261.6, 154.4], [256.9, 146.8], [252.3, 139.1], [248.1, 131.2], [245.4, 122.8], [244.1, 114.0], [244.1, 105.1], [245.6, 96.4], [243.7, 108.3]], "vein": [[243.7, 108.3], [240.7, 123.1], [242.8, 131.7], [245.6, 140.2], [248.8, 148.6], [252.5, 156.8], [256.2, 165.0], [259.1, 173.4], [261.1, 182.2], [262.6, 191.0], [263.7, 199.9], [264.3, 208.9], [263.9, 217.8], [262.5, 226.5], [260.2, 236.7], [258.4, 245.3], [256.7, 253.9], [256.6, 261.8], [260.1, 268.8], [265.2, 275.9], [267.9, 284.1], [268.4, 292.7]], "gap": 30.1}, {"name": "頭R", "n": 2, "art": [[305.9, 264.4], [300.4, 250.4], [299.8, 241.6], [298.7, 232.7], [297.6, 223.8], [297.3, 214.9], [297.8, 206.0], [298.4, 197.0], [298.9, 188.1], [300.2, 179.2], [302.5, 170.5], [305.7, 162.2], [309.8, 154.3], [314.7, 146.8], [319.5, 139.3], [323.4, 131.2], [325.9, 122.7], [327.1, 113.9], [327.2, 104.9], [326.3, 96.1], [327.6, 109.3]], "vein": [[327.6, 109.3], [330.5, 125.0], [328.3, 133.7], [325.3, 142.1], [321.8, 150.4], [318.1, 158.6], [314.6, 166.9], [311.8, 175.4], [309.9, 184.2], [308.4, 193.0], [307.3, 201.9], [307.0, 210.8], [307.9, 219.7], [309.3, 228.5], [310.8, 237.4], [311.4, 245.7], [308.2, 252.3], [301.1, 257.2], [296.5, 261.0]], "gap": 32.0}, {"name": "腕L", "n": 3, "art": [[284.4, 259.2], [276.7, 255.3], [268.9, 251.1], [260.7, 247.9], [252.0, 246.2], [243.1, 245.7], [234.2, 246.4], [225.4, 248.2], [217.0, 251.1], [209.0, 255.2], [201.6, 260.1], [195.1, 266.1], [189.3, 273.0], [184.0, 280.2], [179.4, 287.9], [175.7, 296.1], [172.6, 304.5], [169.8, 313.1], [167.6, 321.8], [165.8, 330.6], [163.9, 339.4], [162.1, 348.2], [160.7, 357.1], [159.5, 366.0], [158.6, 374.9], [157.7, 383.9], [156.3, 392.7], [154.6, 401.5], [152.1, 410.1], [148.7, 418.4], [145.1, 426.6], [142.0, 435.0], [139.0, 443.5], [136.4, 452.0], [134.1, 460.6], [132.3, 469.4], [130.6, 478.3], [129.2, 487.1], [127.7, 496.0], [125.9, 504.8], [124.2, 513.5], [122.1, 522.1], [118.8, 530.2], [113.7, 537.3], [107.1, 543.2], [99.9, 548.3], [92.8, 553.5], [86.7, 559.7], [94.6, 556.6]], "vein": [[94.6, 556.6], [102.6, 553.4], [108.1, 560.3], [115.1, 564.7], [122.9, 564.6], [129.2, 559.7], [132.5, 551.8], [133.8, 543.0], [135.3, 534.2], [137.7, 525.5], [140.7, 517.0], [143.8, 508.6], [147.0, 500.2], [150.2, 491.8], [153.3, 483.3], [156.4, 474.9], [159.1, 466.3], [161.1, 457.6], [162.5, 448.7], [164.3, 439.9], [165.8, 431.1], [166.8, 422.2], [167.4, 413.2], [168.3, 404.3], [169.3, 395.3], [170.4, 386.5], [171.7, 377.6], [173.2, 368.8], [174.8, 359.9], [176.3, 351.1], [177.7, 342.2], [179.6, 333.4], [181.9, 324.7], [184.2, 316.0], [186.7, 307.4], [190.1, 299.1], [194.2, 291.2], [198.9, 283.6], [204.6, 276.7], [211.3, 270.8], [218.9, 266.2], [227.1, 262.8], [235.8, 260.6], [244.6, 260.2], [253.0, 262.2], [259.7, 267.4], [264.6, 274.6], [267.6, 282.8], [268.3, 291.4], [268.4, 294.4]], "gap": 17.2}, {"name": "腕R", "n": 3, "art": [[338.9, 249.6], [347.6, 249.7], [356.0, 251.9], [364.0, 255.9], [371.1, 261.2], [377.5, 267.4], [383.1, 274.3], [388.0, 281.8], [392.5, 289.5], [396.3, 297.6], [399.3, 306.0], [401.9, 314.6], [404.3, 323.3], [406.3, 332.0], [407.8, 340.9], [409.2, 349.8], [410.8, 358.6], [412.3, 367.5], [413.4, 376.4], [414.2, 385.3], [415.6, 394.2], [417.7, 402.9], [420.4, 411.4], [423.6, 419.8], [427.2, 428.0], [430.3, 436.4], [433.0, 445.0], [435.6, 453.6], [437.7, 462.3], [439.5, 471.1], [441.3, 479.9], [442.9, 488.8], [444.3, 497.7], [445.7, 506.5], [447.5, 515.4], [449.8, 524.0], [453.5, 532.1], [458.9, 539.1], [465.8, 544.6], [473.4, 549.3], [478.8, 554.2], [484.4, 559.2], [475.9, 557.1]], "vein": [[475.9, 557.1], [467.4, 555.0], [461.8, 561.6], [454.5, 565.1], [446.7, 563.8], [441.0, 558.1], [438.2, 550.0], [437.0, 541.2], [435.2, 532.4], [432.6, 523.9], [429.7, 515.3], [426.8, 506.8], [423.8, 498.4], [420.6, 490.0], [417.5, 481.5], [414.6, 473.0], [412.0, 464.4], [410.1, 455.6], [408.3, 446.8], [406.3, 438.1], [404.9, 429.3], [404.2, 420.3], [403.5, 411.4], [402.8, 402.4], [401.9, 393.4], [400.7, 384.5], [399.4, 375.6], [398.2, 366.7], [396.9, 357.8], [395.3, 349.0], [393.4, 340.2], [391.4, 331.4], [389.4, 322.6], [387.0, 314.0], [384.1, 305.5], [380.4, 297.3], [376.3, 289.3], [371.6, 281.7], [365.8, 275.0], [358.7, 269.6], [350.9, 265.5], [342.5, 262.5], [333.8, 260.7], [330.8, 260.6]], "gap": 17.4}, {"name": "脚L", "n": 4, "art": [[298.4, 411.3], [297.9, 420.3], [297.0, 429.2], [296.1, 438.1], [295.2, 447.1], [294.5, 456.0], [294.3, 465.0], [293.8, 473.9], [291.4, 482.1], [286.8, 489.5], [280.9, 496.3], [274.7, 502.7], [268.0, 508.7], [261.3, 514.6], [254.8, 520.8], [249.0, 527.6], [244.0, 534.9], [239.6, 542.7], [235.7, 550.8], [232.6, 559.2], [230.2, 567.8], [228.4, 576.6], [226.9, 585.5], [225.5, 594.4], [224.9, 603.3], [224.9, 612.3], [225.2, 621.3], [225.5, 630.3], [225.7, 639.2], [226.3, 648.2], [227.0, 657.1], [227.3, 666.1], [227.2, 675.1], [226.9, 684.1], [226.3, 693.0], [225.8, 702.0], [225.1, 710.9], [223.5, 719.7], [221.8, 728.5], [220.3, 737.4], [218.8, 746.3], [217.2, 755.1], [215.7, 764.0], [214.3, 772.9], [213.6, 781.8], [213.3, 790.8], [213.1, 799.8], [212.7, 808.8], [212.4, 817.8], [212.1, 826.8], [211.8, 835.8], [212.2, 844.7], [212.9, 853.7], [213.4, 862.6], [213.7, 871.6], [214.0, 880.6], [214.2, 889.6], [214.3, 898.6], [213.4, 907.5], [210.9, 915.9], [206.6, 923.7], [201.0, 930.5], [194.2, 936.2], [186.7, 941.1], [178.9, 945.5], [182.4, 948.9]], "vein": [[182.4, 948.9], [189.0, 952.3], [197.5, 950.5], [205.7, 947.2], [212.8, 942.0], [218.4, 935.2], [222.6, 927.3], [225.5, 918.9], [227.1, 910.2], [227.6, 901.3], [227.7, 892.3], [227.7, 883.3], [227.7, 874.3], [227.8, 865.3], [228.1, 856.3], [228.4, 847.3], [228.6, 838.3], [229.0, 829.3], [229.5, 820.3], [230.1, 811.4], [230.6, 802.4], [231.4, 793.4], [232.2, 784.5], [232.9, 775.5], [233.7, 766.6], [234.8, 757.6], [235.7, 748.7], [236.7, 739.7], [237.7, 730.8], [238.8, 721.9], [239.7, 712.9], [240.5, 704.0], [240.9, 695.0], [241.3, 686.0], [241.9, 677.1], [242.2, 668.1], [242.2, 659.1], [241.5, 650.2], [240.8, 641.2], [240.6, 632.2], [240.7, 623.2], [240.7, 614.2], [240.7, 605.2], [241.4, 596.4], [242.8, 587.5], [244.5, 578.7], [246.2, 569.9], [248.7, 561.2], [251.8, 552.9], [255.6, 544.8], [260.0, 537.0], [264.5, 529.2], [269.3, 521.6], [275.1, 513.8], [280.3, 508.4], [287.6, 502.7], [288.4, 499.8], [282.3, 491.2], [279.3, 483.0], [277.6, 476.0], [277.8, 467.0], [278.5, 458.1], [279.7, 449.2], [280.9, 440.3], [281.9, 431.3], [282.6, 422.4], [283.2, 413.4], [283.9, 407.4]], "gap": 9.8}, {"name": "脚R", "n": 4, "art": [[298.3, 410.8], [298.0, 419.4], [296.9, 428.3], [296.1, 437.2], [295.4, 446.2], [294.7, 455.1], [293.7, 464.0], [292.9, 472.9], [293.7, 481.6], [296.7, 489.8], [301.3, 497.5], [306.2, 504.9], [311.6, 512.1], [317.2, 519.0], [322.4, 526.3], [326.9, 534.0], [331.3, 541.8], [335.6, 549.7], [339.1, 557.9], [341.5, 566.6], [343.3, 575.4], [344.8, 584.2], [345.8, 593.1], [346.3, 602.1], [346.3, 611.1], [346.2, 620.1], [345.9, 629.1], [345.3, 638.0], [345.0, 647.0], [345.0, 656.0], [345.0, 665.0], [345.0, 674.0], [345.0, 683.0], [345.0, 692.0], [345.2, 701.0], [346.1, 709.9], [347.7, 718.7], [349.5, 727.5], [351.2, 736.3], [352.9, 745.2], [354.4, 754.1], [355.8, 762.9], [356.9, 771.9], [357.7, 780.8], [358.4, 789.8], [359.0, 798.8], [359.3, 807.7], [359.3, 816.7], [359.2, 825.7], [359.2, 834.7], [359.2, 843.7], [359.1, 852.7], [358.5, 861.7], [357.8, 870.6], [357.5, 879.6], [357.2, 888.6], [357.0, 897.5], [357.7, 906.4], [360.1, 915.0], [364.1, 922.8], [369.7, 929.7], [376.4, 935.5], [383.8, 940.4], [391.4, 945.1], [387.9, 949.3]], "vein": [[387.9, 949.3], [381.6, 952.3], [373.1, 950.1], [365.1, 946.3], [358.0, 941.0], [352.5, 934.2], [348.3, 926.3], [345.6, 917.9], [344.3, 909.2], [344.3, 900.2], [344.3, 891.2], [344.1, 882.2], [343.8, 873.2], [343.5, 864.2], [343.2, 855.2], [342.9, 846.2], [342.7, 837.2], [342.3, 828.2], [341.8, 819.2], [341.3, 810.3], [340.7, 801.3], [340.0, 792.3], [339.1, 783.4], [338.3, 774.5], [337.5, 765.6], [336.7, 756.6], [335.7, 747.7], [334.8, 738.7], [333.8, 729.8], [332.6, 720.9], [331.6, 712.0], [330.9, 703.0], [330.3, 694.0], [329.8, 685.1], [329.7, 676.1], [329.7, 667.1], [329.7, 658.1], [329.7, 649.1], [329.7, 640.1], [330.2, 631.1], [330.9, 622.2], [331.2, 613.3], [330.5, 604.4], [329.6, 595.5], [328.7, 586.5], [327.3, 577.7], [325.1, 569.0], [322.3, 560.4], [319.1, 552.1], [315.4, 543.9], [311.3, 535.9], [306.7, 528.2], [301.5, 520.9], [295.9, 513.9], [291.0, 506.6], [286.2, 499.1], [282.3, 491.2], [279.3, 483.0], [277.6, 476.0], [277.8, 467.0], [278.5, 458.1], [279.7, 449.2], [280.9, 440.3], [281.9, 431.3], [282.6, 422.4], [283.2, 413.4], [283.9, 407.4]], "gap": 10.8}]};
+  function spline(pts, step = 2) {
+    const P = pts.map(p => ({x: p[0], y: p[1]})), out = [P[0]];
+    for (let i = 0; i < P.length - 1; i++) {
+      const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+      const n = Math.max(2, Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / step));
+      for (let k = 1; k <= n; k++) { const t = k / n, t2 = t * t, t3 = t2 * t;
+        out.push({x: .5 * (2 * p1.x + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+                  y: .5 * (2 * p1.y + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3)}); }
+    }
+    const cum = [0]; for (let i = 1; i < out.length; i++) cum.push(cum[i - 1] + Math.hypot(out[i].x - out[i - 1].x, out[i].y - out[i - 1].y));
+    return {pts: out, cum, len: cum[cum.length - 1]};
+  }
+  function at(sp, s) {
+    if (s <= 0) return sp.pts[0]; if (s >= sp.len) return sp.pts[sp.pts.length - 1];
+    let lo = 0, hi = sp.cum.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (sp.cum[m] < s) lo = m; else hi = m; }
+    const a = sp.pts[lo], b = sp.pts[hi], f = (s - sp.cum[lo]) / (sp.cum[hi] - sp.cum[lo] || 1);
+    return {x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f};
+  }
+  const routes = DATA.routes.map(r => ({...r, A: spline(r.art), V: spline(r.vein)}));
+  const MODES = {rest: {bpm: 66, v: 1}, run: {bpm: 132, v: 1.9}};
+  let mode = "rest", paused = false, t = 0, nextBeat = .4, lastBeat = -9, last = null;
+  const parts = [], gA = $('b1dotsA'), gV = $('b1dotsV');
+  function beat() { lastBeat = t; routes.forEach(r => { for (let i = 0; i < r.n; i++) {
+    const el = document.createElementNS(NS, "circle"); el.setAttribute("r", 4.8); gA.appendChild(el); parts.push({r, leg: "A", s: 20 - i * 12, el}); } }); }
+  const heartG = $('b1heartG');
+  function step(dt) {
+    const m = MODES[mode]; t += dt;
+    if (t >= nextBeat) { beat(); nextBeat = t + 60 / m.bpm; }
+    const since = t - lastBeat, vA = 108 * m.v * (.3 + 2.4 * Math.exp(-since / .22)), vV = 120 * m.v;
+    for (let i = parts.length - 1; i >= 0; i--) { const p = parts[i];
+      if (p.leg === "A") { p.s += vA * dt; if (p.s >= p.r.A.len) { p.leg = "V"; p.s = 0; gV.appendChild(p.el); } }   // 毛細血管で動脈血→静脈血
+      else { p.s += vV * dt; if (p.s >= p.r.V.len) { p.el.remove(); parts.splice(i, 1); continue; } }
+      const pt = at(p.leg === "A" ? p.r.A : p.r.V, p.s);
+      p.el.setAttribute("cx", pt.x.toFixed(1)); p.el.setAttribute("cy", pt.y.toFixed(1)); p.el.style.visibility = p.s < 0 ? "hidden" : "visible"; }
+    const d = t - lastBeat; let k = 0; if (d < .1) k = d / .1; else if (d < .4) k = 1 - (d - .1) / .3;
+    heartG.setAttribute("transform", `translate(300,345) scale(${1 - .08 * Math.max(0, k)}) translate(-300,-345)`);
+  }
+  function loop(ts) { if (last === null) last = ts; const dt = Math.min(.05, (ts - last) / 1000); last = ts; if (!paused && cur === 1 && !reduce) step(dt); requestAnimationFrame(loop); }
+  for (let i = 0; i < 300; i++) step(1 / 60);   // 開いた瞬間から粒が流れている状態にする
+  requestAnimationFrame(loop);
+  function setMode(mm) { mode = mm; $('b1rest').setAttribute('aria-pressed', mm === 'rest'); $('b1run').setAttribute('aria-pressed', mm === 'run'); nextBeat = Math.min(nextBeat, t + 60 / MODES[mm].bpm); }
+  $('b1rest').onclick = () => setMode('rest'); $('b1run').onclick = () => setMode('run');
+  $('b1pause').onclick = () => { paused = !paused; $('b1pause').textContent = paused ? 'うごかす' : 'とめる'; $('b1pause').setAttribute('aria-pressed', paused); };
+  window.__s1 = {step, parts, setMode};
+})();
+
+/* ══════ 2 3Dの心臓 ══════ */
+const PARTS3D=[
+  {id:'right_atrium',    nm:'右心房', blood:'v', ch:true,  role:'全身から<b>静脈</b>でもどってきた血液が入る部屋。'},
+  {id:'right_ventricle', nm:'右心室', blood:'v', ch:true,  role:'<b>肺</b>へ血液を送り出す部屋。ここから<b>肺動脈</b>が出る。'},
+  {id:'left_atrium',     nm:'左心房', blood:'a', ch:true,  role:'肺から<b>肺静脈</b>でもどってきた血液が入る部屋。'},
+  {id:'left_ventricle',  nm:'左心室', blood:'a', ch:true,  role:'<b>全身</b>へ血液を送り出す部屋。かべの筋肉がいちばん厚い。'},
+  {id:'aorta',           nm:'動脈（全身へ）', blood:'a', ch:false, role:'左心室から<b>出て</b>、全身へ向かう血管。動脈血が流れる。'},
+  {id:'pulmonary_artery',nm:'肺動脈', blood:'v', ch:false, role:'右心室から<b>出て</b>、肺へ向かう血管。<b>流れているのは静脈血。</b>'},
+  {id:'vena_cava',       nm:'静脈（全身から）', blood:'v', ch:false, role:'全身から心臓（右心房）へ<b>もどる</b>血管。静脈血が流れる。'},
+  {id:'pulmonary_vein',  nm:'肺静脈', blood:'a', ch:false, role:'肺から心臓（左心房）へ<b>もどる</b>血管。<b>流れているのは動脈血。</b>'},
 ];
-const COL = { a:0xf26d7d, v:0x6d8fd6 };
-const COL_CHAMBER = { a:0xf58a99, v:0x7f9fdd };  /* 部屋は少し淡く、血管は濃く */
-let scene3, cam3, re3, group3, meshes3={}, loaded3=false, beatOn=true, selected3=null;
-let th=0.4, ph=1.35, dist=340, target3, fit3=340, dragging=false, px=0, py=0;
-const ray3=new THREE.Raycaster();
-
+let scene3,cam3,re3,group3,meshes3={},loaded3=false,beatOn=true,seen3={};
+let th=0,ph=Math.PI/2,dist=340,target3,fit3=340,dragging=false,px=0,py=0;
+function chips(){ $('chips').innerHTML=PARTS3D.map(p=>`<span class="${seen3[p.id]?'seen':''}">${p.nm}</span>`).join(''); $('seenCount').textContent=Object.keys(seen3).length+'/8'; }
+chips();
 function init3d(){
-  if(re3) return;
-  scene3=new THREE.Scene();
-  scene3.background=new THREE.Color(0x171b2e);
-  const key=new THREE.DirectionalLight(0xffffff,1.05); key.position.set(0.8,1.2,1.0); scene3.add(key);
-  const fill=new THREE.DirectionalLight(0x9fb0e0,0.5); fill.position.set(-1,0.2,-0.5); scene3.add(fill);
-  const rim=new THREE.DirectionalLight(0xcfe0ff,0.65); rim.position.set(0,-0.4,-1); scene3.add(rim);
-  scene3.add(new THREE.HemisphereLight(0xbfd0ff,0x2a2438,0.5));
+  if(re3){ size3d(); return; }
+  scene3=new THREE.Scene(); scene3.background=new THREE.Color(0xfbf6ea);
+  scene3.add(new THREE.HemisphereLight(0xffffff,0x6b5a3a,0.95));
+  const k=new THREE.DirectionalLight(0xffffff,0.85); k.position.set(0.6,1,1.2); scene3.add(k);
   group3=new THREE.Group(); group3.rotation.x=-Math.PI/2; scene3.add(group3);
-  cam3=new THREE.PerspectiveCamera(35, 4/3, 1, 4000);
-  target3=new THREE.Vector3(0,0,0);
-  const cv=document.getElementById('cv3d');
-  re3=new THREE.WebGLRenderer({canvas:cv, antialias:true});
-  re3.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
-  re3.toneMapping=THREE.ACESFilmicToneMapping;
-  re3.toneMappingExposure=0.95;
-  if('outputEncoding' in re3) re3.outputEncoding=THREE.sRGBEncoding;
-  size3d(); window.addEventListener('resize', size3d);
-  bind3d(cv);
-  load3d();
-  requestAnimationFrame(tick3d);
+  cam3=new THREE.PerspectiveCamera(35,4/3,1,4000); target3=new THREE.Vector3();
+  re3=new THREE.WebGLRenderer({canvas:$('cv3d'),antialias:true,preserveDrawingBuffer:true}); re3.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  size3d(); addEventListener('resize',size3d); bind3d($('cv3d')); load3d(); requestAnimationFrame(tick3d);
 }
-function size3d(){
-  const w=document.getElementById('cv3d').parentElement ? (document.querySelector('.stage')?.clientWidth ? Math.min(document.querySelector('.stage').clientWidth-262, 900) : 640) : 640;
-  const ww=Math.max(300, (window.innerWidth<760) ? document.querySelector('.stage').clientWidth : w);
-  const h=Math.round(ww*0.72);
-  re3.setSize(ww,h,false);
-  document.getElementById('cv3d').style.height=h+'px';
-  cam3.aspect=ww/h; cam3.updateProjectionMatrix();
-}
+function size3d(){ const w=Math.max(280,$('stage3d').clientWidth), h=Math.round(Math.min(w*0.8, innerHeight-140)); re3.setSize(w,h,false); $('cv3d').style.height=h+'px'; cam3.aspect=w/h; cam3.updateProjectionMatrix(); }
 async function load3d(){
-  if(loaded3) return;
-  const jobs=PARTS3D.map(async p=>{
-    const buf=await (await fetch('models/'+p.id+'.bin')).arrayBuffer();
-    const dv=new DataView(buf);
-    const nv=dv.getUint32(0,true), nf=dv.getUint32(4,true);
-    const pos=new Float32Array(buf, 8, nv*3);
-    const idx=new Uint32Array(buf, 8+nv*12, nf*3);
-    const g=new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
-    g.setIndex(new THREE.BufferAttribute(idx,1));
-    /* 拍動を各パーツの中心まわりで行うため、ジオメトリを中心化して位置で戻す */
-    g.computeBoundingBox();
-    const c=g.boundingBox.getCenter(new THREE.Vector3());
-    g.translate(-c.x,-c.y,-c.z);
-    g.computeVertexNormals();
-    const isChamber=['right_atrium','right_ventricle','left_atrium','left_ventricle'].includes(p.id);
-    const m=new THREE.Mesh(g, new THREE.MeshStandardMaterial({
-      color:(isChamber?COL_CHAMBER:COL)[p.blood], roughness:0.55, metalness:0.02, transparent:true, opacity:1}));
-    m.position.copy(c);
-    m.userData.part=p;
-    m.userData.isChamber=isChamber;
-    meshes3[p.id]=m; group3.add(m);
-  });
-  await Promise.all(jobs);
-  const bb=new THREE.Box3().setFromObject(group3);
-  target3.copy(bb.getCenter(new THREE.Vector3()));
-  const sz=bb.getSize(new THREE.Vector3());
-  fit3=Math.max(sz.x,sz.y,sz.z)*1.9;
-  dist=fit3;
-  loaded3=true;
-  updateCam3();
+  await Promise.all(PARTS3D.map(async p=>{
+    const buf=await (await fetch('models/'+p.id+'.bin')).arrayBuffer(), dv=new DataView(buf), nv=dv.getUint32(0,true), nf=dv.getUint32(4,true);
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(buf,8,nv*3),3));
+    g.setIndex(new THREE.BufferAttribute(new Uint32Array(buf,8+nv*12,nf*3),1));
+    g.computeBoundingBox(); const c=g.boundingBox.getCenter(new THREE.Vector3()); g.translate(-c.x,-c.y,-c.z); g.computeVertexNormals();
+    const col=p.blood==='a'?(p.ch?0xf0566b:0xe0283f):(p.ch?0x5684d8:0x2f63c8);
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:.6,metalness:0,transparent:true,opacity:1}));
+    m.position.copy(c); m.userData.p=p; meshes3[p.id]=m; group3.add(m);
+  }));
+  const bb=new THREE.Box3().setFromObject(group3); target3.copy(bb.getCenter(new THREE.Vector3()));
+  fit3=Math.max(...bb.getSize(new THREE.Vector3()).toArray())*1.75; dist=fit3; loaded3=true; cam();
 }
-function updateCam3(){
-  cam3.position.set(
-    target3.x + dist*Math.sin(ph)*Math.sin(th),
-    target3.y + dist*Math.cos(ph),
-    target3.z + dist*Math.sin(ph)*Math.cos(th));
-  cam3.lookAt(target3);
-}
-function resetCam(){ sfx('click'); th=0.4; ph=1.35; dist=fit3; updateCam3(); }
+function cam(){ cam3.position.set(target3.x+dist*Math.sin(ph)*Math.sin(th), target3.y+dist*Math.cos(ph), target3.z+dist*Math.sin(ph)*Math.cos(th)); cam3.lookAt(target3); }
 function bind3d(cv){
-  cv.addEventListener('pointerdown', e=>{ dragging=false; px=e.clientX; py=e.clientY; cv.setPointerCapture(e.pointerId); });
-  cv.addEventListener('pointermove', e=>{
-    if(!(e.buttons&1)) return;
-    const dx=e.clientX-px, dy=e.clientY-py;
-    if(Math.abs(dx)+Math.abs(dy)>3) dragging=true;
-    th-=dx*0.008; ph=Math.min(2.6, Math.max(0.4, ph-dy*0.008));
-    px=e.clientX; py=e.clientY; updateCam3();
-  });
-  cv.addEventListener('pointerup', e=>{ if(!dragging) pick3d(e); });
-  cv.addEventListener('wheel', e=>{ e.preventDefault(); dist=Math.min(fit3*2.2, Math.max(fit3*0.3, dist*(e.deltaY>0?1.1:0.9))); updateCam3(); }, {passive:false});
+  cv.addEventListener('pointerdown',e=>{dragging=false;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId)});
+  cv.addEventListener('pointermove',e=>{ if(!(e.buttons&1))return; const dx=e.clientX-px,dy=e.clientY-py; if(Math.abs(dx)+Math.abs(dy)>3)dragging=true;
+    th-=dx*.008; ph=Math.min(2.6,Math.max(.4,ph-dy*.008)); px=e.clientX; py=e.clientY; cam(); });
+  cv.addEventListener('pointerup',e=>{ if(!dragging) pick(e); });
+  cv.addEventListener('wheel',e=>{e.preventDefault(); dist=Math.min(fit3*2,Math.max(fit3*.35,dist*(e.deltaY>0?1.1:.9))); cam();},{passive:false});
 }
-function pick3d(e){
-  const r=e.target.getBoundingClientRect();
-  const m=new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1);
-  ray3.setFromCamera(m, cam3);
-  const hits=ray3.intersectObjects(Object.values(meshes3));
-  if(!hits.length) return;
-  select3d(hits[0].object.userData.part.id);
-}
-function select3d(id){
-  selected3=id;
-  sfx('click');
+const ray=new THREE.Raycaster();
+function pick(e){ const r=e.target.getBoundingClientRect(); ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cam3);
+  const h=ray.intersectObjects(Object.values(meshes3)); if(h.length) select3(h[0].object.userData.p.id); }
+function select3(id){
   const p=PARTS3D.find(x=>x.id===id);
-  Object.values(meshes3).forEach(m=>{
-    const me=(m.userData.part.id===id);
-    m.material.opacity = me?1:0.25;
-    m.material.emissive = new THREE.Color(me?0x332211:0x000000);
-  });
-  document.getElementById('info3d').innerHTML =
-    `<div class="nm">${p.nm} <span class="bloodtag ${p.blood}">${p.blood==='a'?'動脈血':'静脈血'}</span></div><div>${p.role}</div>
-     <button class="btn ghost" style="margin-top:8px" onclick="clearSel3d()">ぜんぶ表示にもどす</button>`;
-  const prog=loadProgress();
-  prog.seen=prog.seen||{};
-  if(!prog.seen[id]){ prog.seen[id]=true; saveProgress(prog); toast(`${p.nm} を見つけた！`); }
-  renderSeen();
-  if(Object.keys(loadProgress().seen||{}).length>=8){ markDone('3d'); }
+  Object.values(meshes3).forEach(m=>{const me=m.userData.p.id===id; m.material.opacity=me?1:.18; m.material.depthWrite=me;});
+  $('info3d').innerHTML=`<b>${p.nm}</b> <span class="tag ${p.blood}">${p.blood==='a'?'動脈血':'静脈血'}</span><br>${p.role}<br><button class="ghost" style="margin-top:8px" id="allBtn">ぜんぶ表示</button>`;
+  $('allBtn').onclick=()=>{Object.values(meshes3).forEach(m=>{m.material.opacity=1;m.material.depthWrite=true;}); $('info3d').innerHTML='<b>タップしてみよう</b><br>色は血液の色：<span class="tag a">動脈血</span> <span class="tag v">静脈血</span>';};
+  seen3[id]=true; chips();
 }
-function clearSel3d(){
-  selected3=null; sfx('click');
-  Object.values(meshes3).forEach(m=>{ m.material.opacity=1; m.material.emissive=new THREE.Color(0x000000); });
-  document.getElementById('info3d').innerHTML =
-    `<div class="nm">タップしてみよう</div><div>色は<b>血の色</b>：<span class="bloodtag a">動脈血</span> 酸素が多い ／ <span class="bloodtag v">静脈血</span> 酸素が少ない</div>`;
-}
-function renderSeen(){
-  const seen=loadProgress().seen||{};
-  document.getElementById('seenCount').textContent=`${Object.keys(seen).length}/8`;
-  document.getElementById('plist').innerHTML =
-    PARTS3D.map(p=>`<span class="pchip ${seen[p.id]?'seen':''}">${p.nm}</span>`).join('');
-}
-function toggleBeat(){
-  beatOn=!beatOn; sfx('click');
-  const b=document.getElementById('beatBtn');
-  b.classList.toggle('on', beatOn);
-  b.textContent = beatOn?'💓 拍動 ON':'🤍 拍動 OFF';
-}
+$('beatBtn').onclick=()=>{beatOn=!beatOn; $('beatBtn').setAttribute('aria-pressed',beatOn)};
+$('resetBtn').onclick=()=>{th=0;ph=Math.PI/2;dist=fit3;cam();};
 let t3=0;
-function tick3d(){
-  requestAnimationFrame(tick3d);
-  if(!document.getElementById('s-3d').classList.contains('on')) return;
-  t3+=0.016;
-  if(loaded3){
-    /* 拍動：心室が縮む→心房が縮む、を簡略化した一定リズム（約70回/分） */
-    const phase=(t3*1.17)%1;
-    const squeeze = phase<0.25 ? Math.sin(phase/0.25*Math.PI) : 0;
-    Object.values(meshes3).forEach(m=>{
-      if(!beatOn){ m.scale.setScalar(1); return; }
-      const s = m.userData.isChamber ? 1 - squeeze*0.055 : 1 - squeeze*0.015;
-      m.scale.setScalar(s);
-    });
-  }
-  re3.render(scene3,cam3);
-}
-function go3d(){ ensureAudio(); sfx('click'); showScreen('s-3d'); init3d(); size3d(); renderSeen(); }
+function tick3d(){ requestAnimationFrame(tick3d); if(cur!==2||!loaded3) return; t3+=.016;
+  const phase=(t3*1.17)%1, sq=phase<.25?Math.sin(phase/.25*Math.PI):0;
+  Object.values(meshes3).forEach(m=>m.scale.setScalar(beatOn&&!reduce?(m.userData.p.ch?1-sq*.05:1-sq*.015):1));
+  re3.render(scene3,cam3); }
 
-/* ══════ ② 2D循環 ══════ */
-/* 教科書図1と同じ正面図：からだの右半分（右心房など）は画面の左に見える */
-let flowInit=false, flowPlay=true, circuit='both', labelsOn=true, dots=[];
-const SVGNS='http://www.w3.org/2000/svg';
-/* col: その管を流れる血 'v'=静脈血(青) 'a'=動脈血(赤) */
-const ROUTE=[
-  {seg:'heart', col:'v', pts:[[255,300],[255,352]]},
-  {seg:'hai',   col:'v', pts:[[255,352],[255,205],[290,150],[290,120]]},
-  {seg:'lung',  col:'v', pts:[[290,120],[290,85],[320,85]]},
-  {seg:'lung',  col:'a', pts:[[320,85],[350,85],[350,120]]},
-  {seg:'hai',   col:'a', pts:[[350,120],[350,150],[385,205],[385,300]]},
-  {seg:'heart', col:'a', pts:[[385,300],[385,352]]},
-  {seg:'tai',   col:'a', pts:[[385,352],[385,215],[452,180],[452,430],[380,470]]},
-  {seg:'body',  col:'a', pts:[[380,470],[320,492]]},
-  {seg:'body',  col:'v', pts:[[320,492],[260,470]]},
-  {seg:'tai',   col:'v', pts:[[260,470],[188,430],[188,240],[255,215],[255,300]]},
+/* ══════ 3 心臓の断面 ══════ */
+const STEPS3=[
+  ['上と下','上の部屋を<b>心房</b>、下の部屋を<b>心室</b>という。<br>血液は<b>心房にもどってきて</b>、<b>心室から出ていく</b>。'],
+  ['右と左','右・左は、<b>心臓の持ち主から見た向き</b>。<br>向かい合って見ているので、画面の<b>左が「右」</b>になる。'],
+  ['4つの部屋','<b class="v">右心房</b>・<b class="v">右心室</b>・<b class="a">左心房</b>・<b class="a">左心室</b>。<br>右側には<b class="v">静脈血</b>、左側には<b class="a">動脈血</b>が入っている。'],
+  ['血液の流れ','全身 →（静脈）→ <b class="v">右心房</b> → <b class="v">右心室</b> →（肺動脈）→ 肺<br>肺 →（肺静脈）→ <b class="a">左心房</b> → <b class="a">左心室</b> →（動脈）→ 全身'],
+  ['弁','部屋の出入口と血管の根もとには<b>弁</b>がある。<br>血液が<b>逆流しないように</b>している。'],
+  ['左心室のかべ','<b class="a">左心室</b>のかべは、右心室よりも<b>厚い</b>。<br>なぜだろう？（教科書 p.138）'],
 ];
-const PIPE={ v:'#bcd1f2', a:'#f7c2cc' };
-const PIPE_DEEP={ v:'#5b7fc9', a:'#e05a6d' };
-let routeTotal=0, lungSwitch=0, bodySwitch=0;
-function buildFlow(){
-  if(flowInit) return; flowInit=true;
-  const svg=document.getElementById('flowsvg');
-  svg.innerHTML =
-   '<defs>'+
-   '<linearGradient id="lungG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffedf1"/><stop offset="1" stop-color="#ffd0da"/></linearGradient>'+
-   '<linearGradient id="bodyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eafaf2"/><stop offset="1" stop-color="#cdefdf"/></linearGradient>'+
-   '<linearGradient id="rmV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3ecfb"/><stop offset="1" stop-color="#c6d6f5"/></linearGradient>'+
-   '<linearGradient id="rmA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde6ea"/><stop offset="1" stop-color="#f9c3cd"/></linearGradient>'+
-   '<filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#9a7070" flood-opacity="0.22"/></filter>'+
-   '</defs>';
-  /* 距離テーブル */
-  let acc=0;
-  ROUTE.forEach(r=>{
-    r.d0=acc; r.len=0;
-    for(let i=1;i<r.pts.length;i++){
-      r.len+=Math.hypot(r.pts[i][0]-r.pts[i-1][0], r.pts[i][1]-r.pts[i-1][1]);
-    }
-    acc+=r.len;
-  });
-  routeTotal=acc;
-  lungSwitch=ROUTE[3].d0;   /* 肺の中で青→赤 */
-  bodySwitch=ROUTE[8].d0;   /* 全身の細胞で赤→青 */
+let s3=1;
+const mq3=matchMedia('(max-width:600px)');
+function fit3view(){ $('heartX').setAttribute('viewBox', mq3.matches ? '150 -40 800 834' : '-250 -40 1530 810'); }
+mq3.addEventListener('change',fit3view); fit3view();
+function render3(){ $('heartX').dataset.s=s3; const [h,t]=STEPS3[s3-1]; $('h3').textContent=s3+'. '+h; $('say3').innerHTML=t;
+  $('dots3').innerHTML=STEPS3.map((_,i)=>`<i class="${i<s3?'on':''}"></i>`).join('');
+  $('prev3').disabled=s3===1; $('next3').hidden=s3===STEPS3.length; $('why3').hidden=s3!==6; $('pump3').hidden=s3<4; $('whyBtn').disabled=false; }
+$('next3').onclick=()=>{ if(s3<STEPS3.length){s3++;render3();} };
+$('prev3').onclick=()=>{ if(s3>1){s3--;render3();} };
+$('whyBtn').onclick=()=>{ $('say3').innerHTML+='<br><br>→ 左心室は<b>全身</b>へ血液を送り出すので、強い力で押し出せるように筋肉のかべが厚い。（右心室は、近くの肺へ送り出す）'; $('whyBtn').disabled=true; };
+const PH=['','① 心房が広がり、血液が流れこむ。','② 心房が縮み、心室に血液が流れこむ。','③ 心室が縮み、動脈に血液が流れ出る。'];
+let autoT=null, phNow=0;
+function setPh(n){ phNow=n; const x=$('heartX'); x.classList.remove('ph1','ph2','ph3'); if(n) x.classList.add('ph'+n);
+  document.querySelectorAll('[data-ph]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.ph===n)); if(n) $('say3').innerHTML=STEPS3[s3-1][1]+'<br><br><b>'+PH[n]+'</b>'; }
+document.querySelectorAll('[data-ph]').forEach(b=>b.onclick=()=>{ stopAuto(); setPh(+b.dataset.ph); });
+function stopAuto(){ if(autoT){clearInterval(autoT);autoT=null;} $('autoPump').setAttribute('aria-pressed','false'); }
+$('autoPump').onclick=()=>{ if(autoT){stopAuto();setPh(0);return;} $('autoPump').setAttribute('aria-pressed','true'); setPh(1); autoT=setInterval(()=>setPh(phNow%3+1),1100); };
+render3();
 
-  const g=(cls)=>{const e=document.createElementNS(SVGNS,'g'); if(cls)e.setAttribute('class',cls); svg.appendChild(e); return e;};
-  const gCase=g('casing'), gPipes=g('pipes'), gArrow=g('arrows'), gBoxes=g('boxes'), gDots=g('dots'), gText=g('orgtext'), gLbl=g('labels');
-
-  /* 血管：白いふち取り＋血の色（動脈血=赤系/静脈血=青系） */
-  ROUTE.forEach(r=>{
-    const mk=(w,stroke)=>{
-      const pl=document.createElementNS(SVGNS,'polyline');
-      pl.setAttribute('points', r.pts.map(p=>p.join(',')).join(' '));
-      pl.setAttribute('fill','none');
-      pl.setAttribute('stroke', stroke);
-      pl.setAttribute('stroke-width', w);
-      pl.setAttribute('stroke-linecap','round');
-      pl.setAttribute('stroke-linejoin','round');
-      return pl;
-    };
-    r.casing=mk(30,'#ffffff'); r.casing.setAttribute('filter','url(#soft)');
-    gCase.appendChild(r.casing);
-    r.el=mk(21, PIPE[r.col]);
-    gPipes.appendChild(r.el);
-  });
-
-  /* 流れの向き矢印 */
-  const arrowAt=(d,col)=>{
-    const p1=posAt(d-3), p2=posAt(d+3);
-    const ang=Math.atan2(p2[1]-p1[1],p2[0]-p1[0])*180/Math.PI;
-    const t=document.createElementNS(SVGNS,'polygon');
-    t.setAttribute('points','-5,-6 8,0 -5,6');
-    t.setAttribute('fill',PIPE_DEEP[col]);
-    t.setAttribute('transform','translate('+((p1[0]+p2[0])/2)+','+((p1[1]+p2[1])/2)+') rotate('+ang+')');
-    gArrow.appendChild(t);
-  };
-  [1,4,6,9].forEach(i=>arrowAt(ROUTE[i].d0+ROUTE[i].len*0.45, ROUTE[i].col));
-  arrowAt(ROUTE[6].d0+ROUTE[6].len*0.82, ROUTE[6].col);
-  arrowAt(ROUTE[9].d0+ROUTE[9].len*0.82, ROUTE[9].col);
-
-  const el=(tag,attrs,parent)=>{
-    const e=document.createElementNS(SVGNS,tag);
-    for(const k in attrs) e.setAttribute(k,attrs[k]);
-    (parent||gBoxes).appendChild(e); return e;
-  };
-  const label=(x,y,txt,fill,fs,parent)=>{
-    const t=el('text',{x:x,y:y,'text-anchor':'middle','dominant-baseline':'central',
-      'font-size':fs||17,'font-weight':900,fill:fill||'#4a4458'},parent||gText);
-    t.textContent=txt; return t;
-  };
-  /* 肺（2つの葉） */
-  el('ellipse',{cx:284,cy:88,rx:56,ry:45,fill:'url(#lungG)',stroke:'#f2a9bb','stroke-width':3,filter:'url(#soft)'});
-  el('ellipse',{cx:356,cy:88,rx:56,ry:45,fill:'url(#lungG)',stroke:'#f2a9bb','stroke-width':3,filter:'url(#soft)'});
-  label(320,88,'肺','#b03856',24);
-  /* 全身 */
-  el('rect',{x:215,y:455,width:210,height:78,rx:24,fill:'url(#bodyG)',stroke:'#8ed3b6','stroke-width':3,filter:'url(#soft)'});
-  label(320,494,'全身の細胞','#1f7a58',20);
-  /* 心臓のかたち（うすいハート） */
-  el('path',{d:'M321,398 C238,362 200,300 214,264 C228,232 276,230 321,260 C366,230 414,232 428,264 C442,300 404,362 321,398 Z',
-    fill:'#fff4f6',stroke:'#f0c3ce','stroke-width':3,filter:'url(#soft)'});
-  label(321,548,'心臓は正面から見た図（からだの右・左だから、画面では逆に見える）','#7d7791',13);
-  /* 4つの部屋 */
-  const room=(x,y,h,grad,stroke,txt,txtCol)=>{
-    el('rect',{x:x,y:y,width:76,height:h,rx:15,fill:'url(#'+grad+')',stroke:stroke,'stroke-width':3.5});
-    label(x+38,y+h/2,txt,txtCol,15);
-  };
-  room(218,248,52,'rmV','#6d8fd6','右心房','#33518f');
-  room(218,304,72,'rmV','#6d8fd6','右心室','#33518f');
-  room(348,248,52,'rmA','#f26d7d','左心房','#a33c49');
-  room(348,304,72,'rmA','#f26d7d','左心室','#a33c49');
-
-  /* 血管ラベル（白ふち文字） */
-  gLbl.id='flowLabels';
-  const L=(x,y,txt,color)=>{
-    const t=label(x,y,txt,color,14,gLbl);
-    t.setAttribute('stroke','#ffffff'); t.setAttribute('stroke-width',4);
-    t.setAttribute('paint-order','stroke'); t.setAttribute('stroke-linejoin','round');
-  };
-  L(238,170,'肺動脈','#33518f');
-  L(404,170,'肺静脈','#a33c49');
-  L(492,300,'大動脈','#a33c49');
-  L(148,330,'大静脈','#33518f');
-  L(150,140,'名前は「動脈」','#33518f');
-  L(150,158,'でも中は静脈血！','#33518f');
-  L(196,178,'→','#33518f');
-
-  /* 血液のつぶ */
-  for(let i=0;i<26;i++){
-    const c=document.createElementNS(SVGNS,'circle');
-    c.setAttribute('r',6.5);
-    c.setAttribute('stroke','#ffffff');
-    c.setAttribute('stroke-width',2);
-    gDots.appendChild(c);
-    dots.push({el:c, d:routeTotal*i/26});
-  }
-  applyCircuit();
-  requestAnimationFrame(tickFlow);
+/* ══════ 4 循環の図（田の字の心臓・矢印は流れる血液の色） ══════ */
+const C4={
+  A:  {d:'M282,268 H322 Q342,268 342,288 V405 Q342,425 322,425 H276', c:ART},  // 左心室 → 全身
+  P:  {d:'M152,268 H104 Q84,268 84,248 V78 Q84,58 104,58 H146',  c:VEN},      // 右心室 → 肺
+  PV: {d:'M274,58 H316 Q336,58 336,78 V195 Q336,215 316,215 H286', c:ART},    // 肺 → 左心房
+  V:  {d:'M144,425 H82 Q62,425 62,405 V235 Q62,215 82,215 H134', c:VEN},     // 全身 → 右心房
+};
+function circSvg(svg){
+  const id=svg.id;
+  svg.innerHTML=`
+  <defs>${['a','v'].map(k=>`<marker id="m4${k}${id}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3.2" markerHeight="3.2" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="${k==='a'?ART:VEN}"/></marker>`).join('')}</defs>
+  <image href="lung.png" x="152" y="6" width="116" height="99.5"/><text class="lbl" x="284" y="44" font-size="18">肺</text>
+  <image href="cells.png" x="146" y="385.75" width="128" height="78.5"/><text class="lbl" x="284" y="456" font-size="18">全身</text>
+  <rect x="140" y="185" width="140" height="110" rx="18" fill="var(--body)"/>
+  <path d="M210,185 V295" stroke="var(--line)" stroke-width="2.5"/>
+  <path d="M140,240 H167 M183,240 H237 M253,240 H280" stroke="var(--line)" stroke-width="2.5"/>
+  <path d="M280,240 V277 Q280,295 262,295 H210" fill="none" stroke="var(--line)" stroke-width="8"/>
+  <g class="c st1"><text class="lbl v-t" x="175" y="203" text-anchor="middle" font-size="13">右心房</text><text class="lbl a-t" x="245" y="203" text-anchor="middle" font-size="13">左心房</text>
+    <text class="lbl v-t" x="175" y="289" text-anchor="middle" font-size="13">右心室</text><text class="lbl a-t" x="245" y="289" text-anchor="middle" font-size="13">左心室</text></g>
+  ${['A','P','PV','V'].map((k,i)=>`<path class="c st${i+2} ${k==='A'||k==='V'?'sys':'pul'}" d="${C4[k].d}" fill="none" stroke="${C4[k].c}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#m4${C4[k].c===ART?'a':'v'}${id})"/>`).join('')}
+  <g class="c st6" font-size="15">
+    <text class="lbl" x="14" y="160">肺<tspan class="a-t">動脈</tspan></text>
+    <text class="lbl" x="346" y="160">肺<tspan class="v-t">静脈</tspan></text>
+    <text class="lbl a-t" x="352" y="352">動脈</text>
+    <text class="lbl v-t" x="14" y="352">静脈</text></g>
+  <g class="c st7" font-size="11">
+    ${[[150,128,'少ない','v'],[270,128,'多い','a'],[285,344,'多い','a'],[135,344,'少ない','v']].map(([x,y,t,k])=>`<g><rect x="${x-48}" y="${y-21}" width="96" height="42" rx="10" fill="#fff"/><text class="lbl" x="${x}" y="${y-3}" text-anchor="middle">酸素が${t}</text><text class="lbl ${k}-t" x="${x}" y="${y+15}" text-anchor="middle">（${k==='a'?'動脈血':'静脈血'}）</text></g>`).join('')}
+    <text class="lbl" x="210" y="-8" text-anchor="middle" font-size="12">肺：二酸化炭素を出し、酸素を受けとる</text>
+    <text class="lbl" x="210" y="478" text-anchor="middle" font-size="12">全身の細胞：細胞の呼吸で酸素を使い、二酸化炭素を出す</text></g>
+  <g class="rbc"></g><g class="free"></g>`;
 }
-function posAt(d){
-  d=((d%routeTotal)+routeTotal)%routeTotal;
-  for(const r of ROUTE){
-    if(d<=r.d0+r.len){
-      let rem=d-r.d0;
-      for(let i=1;i<r.pts.length;i++){
-        const a=r.pts[i-1], b=r.pts[i];
-        const L=Math.hypot(b[0]-a[0],b[1]-a[1]);
-        if(rem<=L){ const t=L?rem/L:0; return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]; }
-        rem-=L;
-      }
-      return r.pts[r.pts.length-1];
-    }
-  }
-  return ROUTE[0].pts[0];
-}
-function bloodColorAt(d){
-  d=((d%routeTotal)+routeTotal)%routeTotal;
-  const inArt = (lungSwitch<bodySwitch) ? (d>=lungSwitch && d<bodySwitch) : (d>=lungSwitch || d<bodySwitch);
-  return inArt ? '#e8465c' : '#4a72c4';
-}
-let lastFT=0;
-function tickFlow(ts){
-  requestAnimationFrame(tickFlow);
-  if(!document.getElementById('s-flow').classList.contains('on')) { lastFT=ts; return; }
-  const dt=Math.min(50, ts-lastFT||16); lastFT=ts;
-  if(flowPlay){
-    dots.forEach(dot=>{ dot.d=(dot.d+dt*0.045)%routeTotal; });
-  }
-  dots.forEach(dot=>{
-    const p=posAt(dot.d);
-    dot.el.setAttribute('cx',p[0]); dot.el.setAttribute('cy',p[1]);
-    dot.el.setAttribute('fill', bloodColorAt(dot.d));
-  });
-}
-function toggleFlow(){
-  flowPlay=!flowPlay; sfx('click');
-  const b=document.getElementById('playBtn');
-  b.textContent=flowPlay?'⏸ とめる':'▶ ながす';
-  b.classList.toggle('on', flowPlay);
-}
-function setCircuit(c){
-  circuit = (circuit===c) ? 'both' : c;
-  sfx('click');
-  applyCircuit();
-  const p=loadProgress(); p.circ=p.circ||{}; p.circ[c]=true; saveProgress(p);
-  if(p.circ.tai && p.circ.hai){ markDone('flow'); }
-  const info=document.getElementById('flowinfo');
-  if(circuit==='tai') info.innerHTML='<b>体循環</b>：左心室 → 大動脈 → 全身の細胞 → 大静脈 → 右心房。細胞に酸素をわたして、二酸化炭素を受け取ってもどる。';
-  else if(circuit==='hai') info.innerHTML='<b>肺循環</b>：右心室 → 肺動脈 → 肺 → 肺静脈 → 左心房。肺で二酸化炭素をわたして、酸素を受け取る。青→赤に変わるのはここ！';
-  else info.innerHTML='血液は<b>心臓→肺→心臓→全身→心臓</b>と、<b>心臓を2回通って</b>1周する。赤⇄青が入れかわるのは<b>肺</b>と<b>全身の細胞</b>のところ。';
-}
-function applyCircuit(){
-  document.getElementById('hl-tai').classList.toggle('on', circuit==='tai');
-  document.getElementById('hl-hai').classList.toggle('on', circuit==='hai');
-  ROUTE.forEach(r=>{
-    let on=true;
-    if(circuit==='tai') on = (r.seg==='tai'||r.seg==='body'||r.seg==='heart');
-    if(circuit==='hai') on = (r.seg==='hai'||r.seg==='lung'||r.seg==='heart');
-    r.el.setAttribute('opacity', on?1:0.15);
-    r.casing.setAttribute('opacity', on?1:0.15);
-    r.el.setAttribute('stroke-width', (on&&circuit!=='both')?24:21);
-  });
-}
-function toggleLabels(){
-  labelsOn=!labelsOn; sfx('click');
-  document.getElementById('lblBtn').classList.toggle('on', labelsOn);
-  document.getElementById('flowLabels').style.display=labelsOn?'':'none';
-}
-function goFlow(){ ensureAudio(); sfx('click'); showScreen('s-flow'); buildFlow(); }
-
-/* ══════ ③ クイズ ══════ */
-const QUESTIONS = [
-  { q:'心臓が規則正しく収縮して血液を送り出す運動を何という？', a:['拍動','蒸散'], correct:0,
-    why:'心臓は筋肉でできていて、規則正しく収縮する運動＝拍動で全身に血液を送り出す。' },
-  { q:'「心臓から送り出される血液が流れる血管」を何という？', a:['動脈','静脈'], correct:0,
-    why:'心臓から出る血管が動脈、心臓にもどる血管が静脈。これは血管の名前（道の名前）。' },
-  { q:'「酸素を多くふくむ血液」を何という？', a:['動脈血','静脈血'], correct:0,
-    why:'酸素が多い血液が動脈血、少ない血液が静脈血。これは血液の中身の名前。' },
-  { q:'心臓から肺以外の全身を通って心臓にもどる血液の流れを何という？', a:['体循環','肺循環'], correct:0,
-    why:'全身を回るのが体循環、肺を回るのが肺循環。血液は心臓を2回通って1周する。' },
-  { q:'では…「肺動脈」を流れている血液は？', a:['静脈血','動脈血'], correct:0,
-    why:'肺動脈の血液は、これから肺で酸素をもらう前。だから酸素が少ない静脈血！ くわしくは次の問いで。' },
+circSvg($('circ')); circSvg($('circ5'));
+$('circ5').querySelectorAll('.c').forEach(e=>e.classList.toggle('show',!e.classList.contains('st7')));
+const STEPS4=[
+  ['心臓を「田」の字にする','上が心房、下が心室。画面の左が右側。<br><b>左心室のかべ</b>を太くかいておく。'],
+  ['左心室 → 全身','<b class="a">左心室</b>から、<b>肺以外の全身</b>へ送り出す。'],
+  ['右心室 → 肺','<b class="v">右心室</b>から、<b>肺</b>へ送り出す。'],
+  ['肺 → 左心房','肺から、<b class="a">左心房</b>にもどる。'],
+  ['全身 → 右心房','全身から、<b class="v">右心房</b>にもどる。これで1周。<br>血液は<b>心臓を2回</b>通る。'],
+  ['血管の名前','心臓から<b>出る</b>血管が<b class="a">動脈</b>、<b>もどる</b>血管が<b class="v">静脈</b>。<br>肺を通る道は<b>肺動脈・肺静脈</b>。'],
+  ['血液と酸素','肺で<b>酸素</b>を受けとった血液が<b class="a">動脈血</b>、全身の細胞に酸素をわたした血液が<b class="v">静脈血</b>。<br>赤血球と酸素の動きを見よう。'],
 ];
-let qOrder=[], qIndex=0, qScore=0;
-function startQuiz(){
-  ensureAudio(); sfx('click');
-  qOrder = QUESTIONS.map((_,i)=>i);   /* この順に意味があるのでシャッフルしない */
-  qIndex = 0; qScore = 0;
-  showScreen('s-quiz'); renderQ();
-}
-function renderQ(){
-  const q = QUESTIONS[qOrder[qIndex]];
-  document.getElementById('q-title').textContent = `もんだい ${qIndex+1} / ${qOrder.length}`;
-  document.getElementById('q-text').textContent = q.q;
-  document.getElementById('q-feedback').innerHTML = '';
-  document.getElementById('q-next').hidden = true;
-  const box = document.getElementById('q-choices');
-  box.innerHTML = '';
-  /* 選択肢の並びだけシャッフル */
-  const order=shuffle(q.a.map((_,i)=>i));
-  order.forEach(i=>{
-    const b=document.createElement('button');
-    b.textContent=q.a[i];
-    b.onclick=()=>answer(i,b);
-    b.dataset.i=i;
-    box.appendChild(b);
-  });
-}
-function answer(i,btn){
-  const q = QUESTIONS[qOrder[qIndex]];
-  const ok = (i===q.correct);
-  if(ok) qScore++;
-  sfx(ok?'ok':'ng');
-  document.querySelectorAll('#q-choices button').forEach(b=>{
-    b.disabled=true;
-    if(b===btn) b.classList.add('chosen');
-    if(Number(b.dataset.i)===q.correct) b.classList.add('correct');
-  });
-  document.getElementById('q-feedback').innerHTML =
-    `<div class="feedback ${ok?'ok':'ng'}"><b>${ok?'そのとおり！':'おしい。'}</b> ${q.why}</div>`;
-  document.getElementById('q-next').hidden = false;
-}
-function nextQ(){
-  qIndex++;
-  if(qIndex < qOrder.length){ sfx('click'); renderQ(); return; }
-  /* 5問終了 → 説明チャレンジへ */
-  sfx('clear');
-  showScreen('s-explain');
-  document.getElementById('ex-answer').hidden=true;
-}
-function showAnswer(){ sfx('ok'); document.getElementById('ex-answer').hidden=false; }
-function finishAll(){
-  markDone('quiz'); sfx('clear');
-  document.getElementById('r-score').textContent = `${qScore} / ${QUESTIONS.length}`;
-  document.getElementById('r-msg').textContent =
-    qScore===QUESTIONS.length ? 'クイズ全問正解＋なぞの説明までできた！ この章はばっちり。'
-    : 'なぞの説明までできた！ まちがえた問題だけもう一度見直そう。';
-  showScreen('s-result');
-}
+let s4=1;
+function render4(){ $('circ').querySelectorAll('.c').forEach(e=>{const k=+[...e.classList].find(c=>/^st\d/.test(c)).slice(2); e.classList.toggle('show',k<=s4);});
+  const [h,t]=STEPS4[s4-1]; $('h4').textContent=s4+'. '+h; $('say4').innerHTML=t;
+  $('dots4').innerHTML=STEPS4.map((_,i)=>`<i class="${i<s4?'on':''}"></i>`).join('');
+  $('prev4').disabled=s4===1; $('next4').hidden=s4===STEPS4.length; $('ctl4').hidden=s4<5; $('legend4').hidden=s4<7; }
+$('next4').onclick=()=>{ if(s4<STEPS4.length){s4++;render4();} };
+$('prev4').onclick=()=>{ if(s4>1){s4--;render4();} };
+render4();
+document.querySelectorAll('[data-only]').forEach(b=>b.onclick=()=>{ const on=b.getAttribute('aria-pressed')!=='true';
+  document.querySelectorAll('[data-only]').forEach(x=>x.setAttribute('aria-pressed','false'));
+  $('circ').classList.remove('only-body','only-lung'); if(on){ b.setAttribute('aria-pressed','true'); $('circ').classList.add('only-'+b.dataset.only);} });
 
-/* ══════ ホーム ══════ */
-function renderHome(){
-  const p=loadProgress();
-  document.getElementById('done-3d').textContent = p['3d'] ? '✓ 8か所ぜんぶ見つけた' : '';
-  document.getElementById('done-flow').textContent = p.flow ? '✓ 2つの循環をたしかめた' : '';
-  document.getElementById('done-quiz').textContent = p.quiz ? '✓ なぞを説明できた' : '';
-  const n=['3d','flow','quiz'].filter(k=>p[k]).length;
-  const badge=document.getElementById('badge');
-  badge.hidden = n===0;
-  badge.textContent = `できた ${n}/3`;
-}
-document.getElementById('soundBtn').textContent = soundOn?'🔊 音':'🔇 音';
-renderHome();
-/* #3d / #flow / #quiz で画面を直接開ける（授業で配るリンク用） */
-if(location.hash==='#3d') go3d();
-else if(location.hash==='#flow') goFlow();
-else if(location.hash==='#quiz') startQuiz();
+/* 赤血球と酸素：1周の道（右心房→右心室→肺→左心房→左心室→全身→右心房） */
+const LOOP=bake([
+  ['v',[[175,224],[175,256],[166,268],[152,268],[104,268],[84,248],[84,78],[104,58],[146,58]]],
+  ['va',[[146,58],[274,58]]],
+  ['a',[[274,58],[316,58],[336,78],[336,195],[316,215],[286,215],[256,215],[245,224],[245,256],[254,268],[282,268],[322,268],[342,288],[342,405],[322,425],[276,425]]],
+  ['av',[[276,425],[144,425]]],
+  ['v',[[144,425],[82,425],[62,405],[62,235],[82,215],[134,215],[164,215],[175,224]]],
+]);
+const RBC=[...Array(14)].map((_,i)=>({d:i*LOOP.total/14}));
+let flowOn=true;
+$('flowBtn').onclick=()=>{flowOn=!flowOn; $('flowBtn').setAttribute('aria-pressed',flowOn)};
+(function(){
+  const svg=$('circ'), gR=svg.querySelector('.rbc'), gF=svg.querySelector('.free');
+  RBC.forEach(r=>{ const g=document.createElementNS(NS,'g');
+    g.innerHTML='<circle r="9.5" stroke-width="2.2"/><circle class="o" r="3.4" cx="-3.5" cy="-3" fill="#ffffff" stroke="#2b2118" stroke-width="1"/><circle class="o" r="3.4" cx="4" cy="2.5" fill="#ffffff" stroke="#2b2118" stroke-width="1"/><circle class="co" r="3.4" cx="11.5" cy="-7" fill="#7a7068"/><circle class="co" r="3.4" cx="12.5" cy="6" fill="#7a7068"/>';
+    gR.appendChild(g); r.g=g; r.ox=null; });
+  const free=[]; // 離れていく酸素・二酸化炭素
+  function puff(x,y,tx,ty,col,ring){ const c=document.createElementNS(NS,'circle'); c.setAttribute('r','3.4'); c.setAttribute('fill',col); if(ring){c.setAttribute('stroke','#2b2118');c.setAttribute('stroke-width','.9');} gF.appendChild(c); free.push({c,x,y,tx,ty,t:0}); }
+  let last=performance.now();
+  function tick(t){ const dt=Math.min(.05,(t-last)/1000); last=t;
+    const show=s4>=5; gR.style.display=show?'':'none'; gF.style.display=show?'':'none';
+    if(cur===4 && show){
+      RBC.forEach(r=>{ if(flowOn&&!reduce) r.d=(r.d+55*dt)%LOOP.total; const q=posAt(LOOP,r.d), col=colorOf(q);
+        const oxy = q.kind==='a' || (q.kind==='va'&&q.u>.5) || (q.kind==='av'&&q.u<.5);
+        if(r.ox!==null && r.ox!==oxy && s4>=7){ // 肺：二酸化炭素を出し酸素を受けとる／全身：酸素をわたし二酸化炭素を受けとる
+          if(oxy){ puff(q.x+9,q.y-6,q.x+6,q.y-34,'#7a7068',false); puff(q.x+4,q.y-34,q.x-3,q.y-3,'#ffffff',true); }
+          else { puff(q.x-3,q.y-3,q.x-4,q.y+30,'#ffffff',true); puff(q.x+6,q.y+30,q.x+9,q.y-6,'#7a7068',false); } }
+        r.ox=oxy;
+        r.g.setAttribute('transform',`translate(${q.x.toFixed(1)},${q.y.toFixed(1)})`); r.g.firstChild.setAttribute('fill',col); r.g.firstChild.setAttribute('stroke',mix(col,'#000000',.55));
+        r.g.querySelectorAll('.o').forEach(o=>o.style.display=(oxy&&s4>=7)?'':'none'); r.g.querySelectorAll('.co').forEach(o=>o.style.display=(!oxy&&s4>=7)?'':'none'); });
+      for(let i=free.length-1;i>=0;i--){ const f=free[i]; f.t+=dt/1.1; const k=Math.min(1,f.t);
+        f.c.setAttribute('cx',f.x+(f.tx-f.x)*k); f.c.setAttribute('cy',f.y+(f.ty-f.y)*k); f.c.setAttribute('opacity',1-Math.max(0,k-.7)/.3);
+        if(f.t>=1){ f.c.remove(); free.splice(i,1);} }
+    }
+    requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+})();
+
+/* ══════ 5 肺動脈のなぞ ══════ */
+$('hint1').onclick=()=>{ $('hintBox').hidden=false; $('hintBox').innerHTML='ヒント1：「<b>動脈・静脈</b>」は<b>血管</b>の名前。何で決まる？（心臓から出る？ もどる？）'; };
+$('hint2').onclick=()=>{ $('hintBox').hidden=false; $('hintBox').innerHTML='ヒント2：「<b>動脈血・静脈血</b>」は<b>血液</b>の名前。何で決まる？（酸素が多い？ 少ない？）'; };
+$('ansBtn').onclick=()=>{ const open=$('ansBox').hidden; $('ansBox').hidden=!open; $('ask5').hidden=open; $('hintRow').hidden=open; if(open) $('hintBox').hidden=true;
+  $('ansBtn').textContent=open?'答えをとじる':'言えた！ 答えを見る'; $('ansBtn').className=open?'ghost':'big'; };
+
+/* 検査用 */
+window.__lab={go,get s3(){return s3},set s3(v){s3=v;render3()},get s4(){return s4},set s4(v){s4=v;render4()},setPh,select3};
+go(1);
 </script>
 </body>
 </html>
