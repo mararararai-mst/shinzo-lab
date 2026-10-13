@@ -98,6 +98,7 @@ main{padding:6px 16px 20px}
     <button data-go="3">3 心臓の断面</button>
     <button data-go="4">4 循環の図</button>
     <button data-go="5">5 肺動脈のなぞ</button>
+    <button data-go="6">6 弁のしくみ</button>
   </nav>
 </header>
 <main>
@@ -168,7 +169,7 @@ main{padding:6px 16px 20px}
       <text class="lbl v-t" x="350" y="452" text-anchor="middle">右心房</text>
       <text class="lbl v-t" x="580" y="640" text-anchor="middle">右心室</text>
       <path d="M662,318 L812,372" stroke="var(--art)" stroke-width="3"/><text class="lbl a-t" x="818" y="384" font-size="30">左心房</text>
-      <text class="lbl a-t" x="684" y="540" text-anchor="middle">左心室</text></g>
+      <path d="M708,488 L812,480" stroke="var(--art)" stroke-width="3"/><text class="lbl a-t" x="818" y="492" font-size="30">左心室</text></g>
     <!-- 4：血液の流れ -->
     <defs>
       <marker id="mv" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--ven)"/></marker>
@@ -181,7 +182,7 @@ main{padding:6px 16px 20px}
       <g class="flowg f2g"><path class="flow f2" d="M380,480 L470,575" stroke="var(--ven)" marker-end="url(#mv)"/>
         <path class="flow f2" d="M650,340 L668,470" stroke="var(--art)" marker-end="url(#ma)"/></g>
       <g class="flowg f3g"><path class="flow f3" d="M520,560 C500,500 492,440 498,380 C504,300 512,240 560,205 C600,185 650,180 700,176" stroke="var(--ven)" marker-end="url(#mv)"/>
-        <path class="flow f3" d="M632,560 C600,480 575,440 560,400 C540,340 470,320 456,240 C444,170 470,120 520,104" stroke="var(--art)" marker-end="url(#ma)"/></g>
+        <path class="flow f3" d="M700,585 C690,530 655,480 615,448 C585,425 560,405 548,375 C538,345 548,300 556,250 C562,205 556,160 536,118" stroke="var(--art)" marker-end="url(#ma)"/></g>
       <text class="lbl v-t" x="200" y="110" font-size="30" stroke="none">静脈</text>
       <text class="lbl v-t" x="200" y="730" font-size="30" stroke="none">静脈</text>
       <text class="lbl" x="745" y="160" font-size="30" stroke="none">肺<tspan class="a-t">動脈</tspan></text>
@@ -206,6 +207,7 @@ main{padding:6px 16px 20px}
     <div class="say" id="say3"></div>
     <div class="stepper"><button class="ghost" id="prev3">◀ もどる</button><div class="dots" id="dots3"></div><button class="big" id="next3">つぎ ▶</button></div>
     <div id="why3" hidden class="row"><button class="ghost" id="whyBtn">なぜ？の答え</button></div>
+    <div id="valve3" hidden><button class="ghost" data-go="6">弁のしくみを見る →</button></div>
     <div id="pump3" hidden>
       <p><b>心臓を動かしてみよう</b><br>（教科書 p.138 図2）</p>
       <div class="row"><button class="ghost" data-ph="1">① 心房が広がる</button><button class="ghost" data-ph="2">② 心房が縮む</button><button class="ghost" data-ph="3">③ 心室が縮む</button><button class="ghost" id="autoPump" aria-pressed="false">くり返し動かす</button></div>
@@ -247,6 +249,28 @@ main{padding:6px 16px 20px}
       ・肺動脈は、右心室から<b>出て</b>肺へ向かうので「動脈」。でも中の血液は、全身の細胞に酸素をわたして、<span class="nw">もどってきた</span>ばかりで、肺で酸素を受けとる前なので「静脈血」。<br>
       ・肺静脈はその逆。肺で酸素を受けとった血液（動脈血）が、心臓に<b>もどる</b>血管<span class="nw">（静脈）を</span>流れる。
     </div>
+  </div>
+</section>
+<!-- ══════ 6 弁のしくみ ══════ -->
+<section class="screen" id="s6">
+  <div class="fig"><svg id="valveSvg" viewBox="0 70 1024 450" role="img" aria-label="弁のしくみ（血管の中の弁を大きくした図）">
+    <!-- 弁の絵：Gemini で生成（2026-10-14）。開いた弁・閉じた弁・弁なし の3枚を重ねて切りかえる -->
+    <text class="lbl" x="40" y="128" font-size="34">心室の側</text><text class="lbl" x="984" y="128" font-size="34" text-anchor="end">動脈の側</text>
+    <text class="lbl" id="vState" x="495" y="128" font-size="36" text-anchor="middle">弁が開いている</text>
+    <defs><clipPath id="vClip"><rect x="0" y="194" width="1024" height="184"/></clipPath></defs>
+    <image href="valve_none.png" x="0" y="140" width="1024" height="290"/>
+    <image id="vImgOpen" href="valve_open.png" x="0" y="140" width="1024" height="290" style="transition:opacity .25s"/>
+    <image id="vImgShut" href="valve_closed.png" x="0" y="140" width="1024" height="290" style="opacity:0;transition:opacity .25s"/>
+    <g id="vDots" clip-path="url(#vClip)"></g>
+    <g id="vPush" stroke="var(--ink)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"><path id="vPushPath" d="M330,476 H690"/><path id="vPushHead" d="M652,454 L692,476 L652,498"/></g>
+  </svg></div>
+  <div class="side">
+    <h2>弁のしくみ</h2>
+    <div class="say" id="sayV"></div>
+    <div class="row"><button class="ghost" id="vFwd" aria-pressed="true">① 心室がちぢむ</button><button class="ghost" id="vBack" aria-pressed="false">② 心室が広がる</button><button class="ghost" id="vAuto" aria-pressed="false">くり返す</button></div>
+    <div class="row"><button class="ghost" id="vNone" aria-pressed="false">弁を外してみる</button></div>
+    <p class="note">静脈の中にも、同じはたらきの弁がところどころにある。（教科書 p.139）</p>
+    <button class="big" data-go="3">← 心臓の断面にもどる</button>
   </div>
 </section>
 </main>
@@ -417,7 +441,8 @@ function fit3view(){ $('heartX').setAttribute('viewBox', mq3.matches ? '150 -40 
 mq3.addEventListener('change',fit3view); fit3view();
 function render3(){ $('heartX').dataset.s=s3; const [h,t]=STEPS3[s3-1]; $('h3').textContent=s3+'. '+h; $('say3').innerHTML=t;
   $('dots3').innerHTML=STEPS3.map((_,i)=>`<i class="${i<s3?'on':''}"></i>`).join('');
-  $('prev3').disabled=s3===1; $('next3').hidden=s3===STEPS3.length; $('why3').hidden=s3!==6; $('pump3').hidden=s3<4; $('whyBtn').disabled=false; }
+  $('valve3').hidden=s3!==5;
+  $('prev3').disabled=s3===1; $('next3').hidden=s3===STEPS3.length; $('why3').hidden=s3!==6; $('pump3').hidden=s3<4||s3===5; $('whyBtn').disabled=false; }
 $('next3').onclick=()=>{ if(s3<STEPS3.length){s3++;render3();} };
 $('prev3').onclick=()=>{ if(s3>1){s3--;render3();} };
 $('whyBtn').onclick=()=>{ $('say3').innerHTML+='<br><br>→ 左心室は<b>全身</b>へ血液を送り出すので、強い力で押し出せるように筋肉のかべが厚い。（右心室は、近くの肺へ送り出す）'; $('whyBtn').disabled=true; };
@@ -529,6 +554,54 @@ $('ansBtn').onclick=()=>{ const open=$('ansBox').hidden; $('ansBox').hidden=!ope
   $('ansBtn').textContent=open?'答えをとじる':'言えた！ 答えを見る'; $('ansBtn').className=open?'ghost':'big'; };
 
 /* 検査用 */
+/* ══════ 6 弁のしくみ（絵は Gemini。粒の動きと絵の切りかえだけをここで動かす） ══════ */
+(function(){
+  const Y1=194, Y2=378, YC=288, R=14, BAR=[[196, 511], [200, 512], [204, 513], [208, 514], [212, 515], [216, 517], [220, 518], [224, 520], [228, 522], [232, 525], [236, 527], [240, 530], [244, 533], [248, 536], [252, 540], [256, 548], [260, 552], [264, 554], [268, 555], [272, 554], [276, 551], [280, 554], [284, 554], [288, 554], [292, 546], [296, 552], [300, 554], [304, 555], [308, 554], [312, 552], [316, 546], [320, 539], [324, 535], [328, 532], [332, 529], [336, 526], [340, 524], [344, 522], [348, 520], [352, 518], [356, 516], [360, 515], [364, 514], [368, 513], [372, 512], [376, 511]];
+  let mode='fwd', none=false, auto=null, last=null, spawnT=0;
+  const dots=[], g=$('vDots');
+  const barrierX=y=>{ let k=Math.round((y-BAR[0][0])/4); k=Math.max(0,Math.min(BAR.length-1,k)); return BAR[k][1]+R+3; };
+  const ss=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
+  // 弁が開いているとき：弁の近くでは、まん中のあいた所（y 274〜302）に寄って通る
+  const squeeze=x=>{ const b=ss((x-330)/110)*(1-ss((x-570)/110)); return 1-0.8*b; };
+  function texts(){
+    const head='弁は、血液を<b>一方向にだけ</b>通すドア。<br><br>';
+    const t= none ? (mode==='fwd' ? '弁がなくても、前へは流れる。<br>では、心室が広がったら？' : '弁がないと、血液は<b>そのまま後ろへもどってしまう</b>。<br>押し出しても、行ったり来たりするだけになる。')
+                  : (mode==='fwd' ? '心室がちぢむと、血液が前へ押される。<br>弁は押されて<b>開き</b>、血液が動脈へ通る。' : '心室が広がると、血液が後ろへ<span class="nw">もどろう</span>とする。<br>弁のふくろに血液が入って弁が<b>閉じ</b>、<br>血液は<b>もどれない</b>。');
+    $('sayV').innerHTML=head+t;
+    $('vState').textContent = none ? '弁なし' : (mode==='fwd' ? '弁が開いている' : '弁が閉じている');
+    $('vImgOpen').style.opacity = (!none && mode==='fwd') ? 1 : 0;
+    $('vImgShut').style.opacity = (!none && mode==='back') ? 1 : 0;
+    $('vPushPath').setAttribute('d', mode==='fwd' ? 'M330,476 H690' : 'M690,476 H330');
+    $('vPushHead').setAttribute('d', mode==='fwd' ? 'M652,454 L692,476 L652,498' : 'M368,454 L328,476 L368,498');
+    $('vFwd').setAttribute('aria-pressed',mode==='fwd'); $('vBack').setAttribute('aria-pressed',mode==='back');
+    $('vNone').setAttribute('aria-pressed',none); $('vNone').textContent = none ? '弁をもどす' : '弁を外してみる'; }
+  function setMode(m){ mode=m; dots.forEach(d=>d.stop=false); texts(); }
+  function add(x){ const el=document.createElementNS(NS,'circle'); el.setAttribute('r',R); el.setAttribute('fill','var(--art)'); el.setAttribute('stroke','#7a0f1e'); el.setAttribute('stroke-width','3'); g.appendChild(el);
+    dots.push({x, y0:Y1+R+6+Math.random()*(Y2-Y1-2*R-12), y:0, el, stop:false}); }
+  function step(dt){
+    spawnT += dt; const stopped = dots.filter(d=>d.stop).length;
+    if(spawnT>0.2 && !(mode==='back' && !none && stopped>=18)){ spawnT=0; add(mode==='fwd' ? R : 1024-R); }
+    const v = (mode==='fwd' ? 1 : -1) * 230;
+    for(let i=dots.length-1;i>=0;i--){ const d=dots[i];
+      if(!d.stop){ let nx=d.x+v*dt;
+        if(mode==='back' && !none && d.x>=480){            // 弁が閉じている：ひだの手前で止まり、うしろに積もる
+          let lim=barrierX(d.y);
+          dots.forEach(o=>{ if(o!==d && o.stop && Math.abs(o.y-d.y)<2*R) lim=Math.max(lim,o.x+2*R+2); });
+          if(nx<=lim){ nx=lim; d.stop=true; } }
+        d.x=nx; }
+      const k = (none || (mode==='back' && d.x>=480)) ? 1 : squeeze(d.x);
+      if(!d.stop) d.y = YC+(d.y0-YC)*k;
+      if(d.x<R || d.x>1024-R){ d.el.remove(); dots.splice(i,1); continue; }
+      d.el.setAttribute('cx',d.x.toFixed(1)); d.el.setAttribute('cy',d.y.toFixed(1)); } }
+  function loop(ts){ if(last===null) last=ts; const dt=Math.min(.05,(ts-last)/1000); last=ts; if(cur===6 && !reduce) step(dt); requestAnimationFrame(loop); }
+  function stopAuto(){ if(auto){ clearInterval(auto); auto=null; } $('vAuto').setAttribute('aria-pressed','false'); }
+  $('vFwd').onclick=()=>{ stopAuto(); setMode('fwd'); };
+  $('vBack').onclick=()=>{ stopAuto(); setMode('back'); };
+  $('vAuto').onclick=()=>{ if(auto){ stopAuto(); return; } $('vAuto').setAttribute('aria-pressed','true'); setMode(mode==='fwd'?'back':'fwd'); auto=setInterval(()=>setMode(mode==='fwd'?'back':'fwd'),2800); };
+  $('vNone').onclick=()=>{ none=!none; dots.forEach(d=>d.stop=false); texts(); };
+  texts(); for(let i=0;i<150;i++) step(1/60); requestAnimationFrame(loop);
+  window.__valve={setMode,get none(){return none},set none(v){none=v;texts()},dots,step};
+})();
 window.__lab={go,get s3(){return s3},set s3(v){s3=v;render3()},get s4(){return s4},set s4(v){s4=v;render4()},setPh,select3};
 go(1);
 </script>
