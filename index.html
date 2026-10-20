@@ -75,7 +75,8 @@ main{padding:6px 16px 20px}
 #heartX[data-s="5"] .s5,#heartX[data-s="6"] .s6{opacity:1}
 #heartX .ring{opacity:0;transition:opacity .3s}
 #heartX .narrow{display:none}
-@media (max-width:600px){#heartX .wide{display:none} #heartX .narrow{display:inline}
+@media (max-width:1100px){#heartX .wide{display:none} #heartX .narrow{display:inline}}
+@media (max-width:600px){
   #circ .st1 text,#circ5 .st1 text{font-size:15px} #circ .st7 text{font-size:14px} #circ .st7 text[font-size="12"]{font-size:13.5px}}
 #heartX.ph1 .ring.atrium,#heartX.ph2 .ring.atrium,#heartX.ph3 .ring.ventricle{opacity:1}
 .flow{stroke-dasharray:10 9}
@@ -436,7 +437,7 @@ const STEPS3=[
   ['左心室のかべ','<b class="a">左心室</b>のかべは、右心室よりも<b>厚い</b>。<br>なぜだろう？（教科書 p.138）'],
 ];
 let s3=1;
-const mq3=matchMedia('(max-width:600px)');
+const mq3=matchMedia('(max-width:1100px)');   // タブレット横向き（1024）までは、図の左右を切って心臓を大きく見せる
 function fit3view(){ $('heartX').setAttribute('viewBox', mq3.matches ? '150 -40 800 834' : '-250 -40 1530 810'); }
 mq3.addEventListener('change',fit3view); fit3view();
 function render3(){ $('heartX').dataset.s=s3; const [h,t]=STEPS3[s3-1]; $('h3').textContent=s3+'. '+h; $('say3').innerHTML=t;
