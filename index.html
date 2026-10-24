@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>しんぞうポンプラボ｜中２理科・心臓のはたらきと血液の循環</title>
+<title>ドクドク心臓ポンプずかん｜中２理科・心臓のはたらきと血液の循環</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M16 28 C6 20 2 15 2 9.5 A6.5 6.5 0 0 1 16 7 A6.5 6.5 0 0 1 30 9.5 C30 15 26 20 16 28Z%22 fill=%22%23e0283f%22/%3E%3C/svg%3E">
 <meta name="description" content="血液が体をめぐるようす、3Dの心臓、心臓の断面、血液の循環の図を順に見て、「肺動脈に静脈血が流れる理由」を説明する。教科書 p.136〜141 対応。">
-<meta property="og:title" content="しんぞうポンプラボ｜血液はどうめぐる？">
+<meta property="og:title" content="ドクドク心臓ポンプずかん｜血液はどうめぐる？">
 <meta property="og:description" content="体をめぐる血液 → 3Dの心臓 → 心臓の断面 → 循環の図 → 肺動脈のなぞ。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +27,7 @@ b,strong{word-break:keep-all;overflow-wrap:anywhere}
 header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 16px 6px}
 header h1{font-family:var(--f-head);font-weight:900;font-size:1.35rem;margin:0;color:var(--gInk)}
 .steps{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+@media (max-width:1100px){.steps{margin-left:0}}   /* 見出しの下に回ったときは左から並べる */
 .steps button{font-family:var(--f-head);font-weight:900;font-size:.95rem;border:3px solid transparent;border-radius:999px;
   background:var(--panel);color:var(--ink);padding:8px 14px;min-height:44px;cursor:pointer}
 .steps button[aria-current="step"]{border-color:var(--line)}
@@ -92,7 +93,7 @@ main{padding:6px 16px 20px}
 </head>
 <body>
 <header>
-  <h1>しんぞうポンプラボ</h1>
+  <h1>ドクドク心臓ポンプずかん</h1>
   <nav class="steps" aria-label="画面">
     <button data-go="1">1 からだをめぐる</button>
     <button data-go="2">2 3Dの心臓</button>
