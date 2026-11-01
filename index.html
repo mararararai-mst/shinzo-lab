@@ -110,7 +110,7 @@ main{padding:6px 16px 20px}
 @keyframes ringP{50%{opacity:.25}}
 .trailGlow{animation:glow 1.2s ease-in-out 2}
 @keyframes glow{50%{stroke:#ffb300;opacity:1}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* 「動きを減らす」設定でも動きは止めない：粒の流れ・拍動がこの教材の中身（2026-11-01 学校の端末で、アニメーション効果オフのアカウントだけ動かなかった） */
 </style>
 </head>
 <body>
@@ -341,7 +341,7 @@ const mix=(c1,c2,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));con
   return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*t).toString(16).padStart(2,'0')).join('')};
 const GROUND={navy:['#15233f','#f4ece0'],kinari:['#f4ece0','#2b2118'],mint:['#bfe6d6','#2b2118']};
 (function(){ const k=location.hash.slice(1); if(GROUND[k]){ document.documentElement.style.setProperty('--g',GROUND[k][0]); document.documentElement.style.setProperty('--gInk',GROUND[k][1]); } })();
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduce=false;   // Windows の「アニメーション効果」オフ（prefers-reduced-motion）でも止めない。止めたいときは各画面の「とめる」ボタン
 
 /* ── 画面の切りかえ ── */
 let cur=1;
