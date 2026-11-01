@@ -27,10 +27,13 @@ b,strong{word-break:keep-all;overflow-wrap:anywhere}
 header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 16px 6px}
 header h1{font-family:var(--f-head);font-weight:900;font-size:1.35rem;margin:0;color:var(--gInk)}
 .steps{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
-@media (max-width:1100px){.steps{margin-left:0}}   /* 見出しの下に回ったときは左から並べる */
+@media (max-width:1250px){.steps{margin-left:0}}   /* 見出しの下に回ったときは左から並べる */
+@media (max-width:1250px) and (min-width:861px){.fig svg,#bodySvg{max-height:calc(100vh - 175px)!important}}   /* メニューが2段目に回った分、図を低くして1画面に収める */
+@media (max-width:1010px) and (min-width:861px){.fig svg,#bodySvg{max-height:calc(100vh - 225px)!important}}   /* メニュー自体も2段になる幅 */
 .steps button{font-family:var(--f-head);font-weight:900;font-size:.95rem;border:3px solid transparent;border-radius:999px;
   background:var(--panel);color:var(--ink);padding:8px 14px;min-height:44px;cursor:pointer}
 .steps button[aria-current="step"]{border-color:var(--line)}
+@media (max-width:1400px){.steps{gap:4px} .steps button{font-size:.88rem;padding:8px 10px}}   /* 画面が8つ：1280幅でも見出しと1行に収める */
 button{transition:transform .08s}
 button:active{transform:translateY(4px)}
 button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
@@ -78,7 +81,7 @@ main{padding:6px 16px 20px}
 #heartX .narrow{display:none}
 @media (max-width:1100px){#heartX .wide{display:none} #heartX .narrow{display:inline}}
 @media (max-width:600px){
-  #circ .st1 text,#circ5 .st1 text{font-size:15px} #circ .st7 text{font-size:14px} #circ .st7 text[font-size="12"]{font-size:13.5px}}
+  #circ .st1 text,#circ5 .st1 text,#circ7 .st1 text,#circ8 .st1 text{font-size:15px} #circ .st7 text{font-size:14px} #circ .st7 text[font-size="12"]{font-size:13.5px}}
 #heartX.ph1 .ring.atrium,#heartX.ph2 .ring.atrium,#heartX.ph3 .ring.ventricle{opacity:1}
 .flow{stroke-dasharray:10 9}
 #heartX.ph1 .f1,#heartX.ph2 .f2,#heartX.ph3 .f3{animation:dash .6s linear infinite}
@@ -88,6 +91,25 @@ main{padding:6px 16px 20px}
 .c{opacity:0;transition:opacity .35s}
 .c.show{opacity:1}
 #circ.only-body .pul{opacity:.15} #circ.only-lung .sys{opacity:.15}
+/* 5 赤血球の旅・6 順番ならべ */
+.tabiNow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabiNow #tNo{font-family:var(--f-head);font-weight:900;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center}
+.tabiNow b{font-family:var(--f-head);font-weight:900;font-size:1.5rem}
+.say.gyaku{border:3px solid var(--line);margin-top:8px}
+.zoom svg{width:100%;height:auto;display:block;border-radius:12px;background:#fff}
+.zoom .note{margin-top:4px}
+.slots{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 2px;align-items:center}
+.slots li{font-size:.85rem;font-weight:700;border-radius:999px;padding:4px 9px;background:#fff;min-width:40px;text-align:center}
+.slots li.empty{background:#efe4cc;color:var(--sub)}
+.slots li:not(:last-child)::after{content:" →";color:var(--sub);font-weight:400}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.cards button{font-family:var(--f-head);font-weight:900;font-size:1rem;border:3px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 14px;min-height:48px;cursor:pointer}
+.cards button.ng{animation:ng .35s}
+@keyframes ng{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ringPulse{animation:ringP 1s ease-in-out infinite}
+@keyframes ringP{50%{opacity:.25}}
+.trailGlow{animation:glow 1.2s ease-in-out 2}
+@keyframes glow{50%{stroke:#ffb300;opacity:1}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -99,8 +121,10 @@ main{padding:6px 16px 20px}
     <button data-go="2">2 3Dの心臓</button>
     <button data-go="3">3 心臓の断面</button>
     <button data-go="4">4 循環の図</button>
-    <button data-go="5">5 肺動脈のなぞ</button>
-    <button data-go="6">6 弁のしくみ</button>
+    <button data-go="7">5 赤血球の旅</button>
+    <button data-go="8">6 順番ならべ</button>
+    <button data-go="5">7 肺動脈のなぞ</button>
+    <button data-go="6">8 弁のしくみ</button>
   </nav>
 </header>
 <main>
@@ -231,11 +255,42 @@ main{padding:6px 16px 20px}
       <button class="ghost" data-only="lung" aria-pressed="false">肺循環だけ</button>
     </div>
     <div class="say" id="legend4" hidden><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--o2);border:1.5px solid var(--ink);vertical-align:-1px"></span> 酸素　<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--co2);vertical-align:-1px"></span> 二酸化炭素</div>
-    <button class="big" data-go="5">肺動脈のなぞへ →</button>
+    <button class="big" data-go="7">赤血球の旅へ →</button>
   </div>
 </section>
 
-<!-- ══════ 5 肺動脈のなぞ ══════ -->
+<!-- ══════ 5 赤血球の旅（id は s7。番号は画面の並び） ══════ -->
+<section class="screen" id="s7">
+  <div class="fig"><svg id="circ7" viewBox="0 -24 420 510" role="img" aria-label="赤血球が血液の通り道を1周する図"></svg></div>
+  <div class="side">
+    <h2>赤血球の旅</h2>
+    <div class="tabiNow"><span id="tNo">1</span><b id="tName">右心房</b><span class="tag v" id="tTag">静脈血</span></div>
+    <div class="say" id="say7"></div>
+    <div id="gyaku7" hidden>
+      <button class="ghost" id="cmpBtn">名前と中身をくらべる</button>
+      <div class="say gyaku" id="cmpBox" hidden></div>
+    </div>
+    <div class="zoom" id="zoom7" hidden><svg id="zoomSvg" viewBox="0 0 768 429" role="img" aria-label="毛細血管の拡大図"></svg><p class="note" id="zoomNote"></p></div>
+    <div class="stepper"><button class="ghost" id="prev7">◀ もどる</button><div class="dots" id="dots7"></div><button class="big" id="next7">つぎへ ▶</button></div>
+    <button class="big" id="go8" data-go="8" hidden>順番ならべに挑戦 →</button>
+  </div>
+</section>
+
+<!-- ══════ 6 順番ならべ（id は s8） ══════ -->
+<section class="screen" id="s8">
+  <div class="fig"><svg id="circ8" viewBox="0 -24 420 510" role="img" aria-label="血液の通り道の図"></svg></div>
+  <div class="side">
+    <h2>順番ならべ</h2>
+    <p>右心房から出発。<br>血液が<b>通る順</b>にカードをタップしよう。</p>
+    <ol class="slots" id="slots8"></ol>
+    <div class="say" id="say8">右心房の次は？</div>
+    <div class="cards" id="cards8"></div>
+    <div class="row"><button class="ghost" id="reset8">はじめから</button></div>
+    <button class="big" data-go="5" id="go5" hidden>肺動脈のなぞへ →</button>
+  </div>
+</section>
+
+<!-- ══════ 7 肺動脈のなぞ（id は s5） ══════ -->
 <section class="screen" id="s5">
   <div class="fig"><svg id="circ5" viewBox="0 -24 420 510" role="img" aria-label="血液の循環の図（名前つき）"></svg></div>
   <div class="side">
@@ -461,7 +516,7 @@ render3();
 const C4={
   A:  {d:'M282,268 H322 Q342,268 342,288 V405 Q342,425 322,425 H276', c:ART},  // 左心室 → 全身
   P:  {d:'M152,268 H104 Q84,268 84,248 V78 Q84,58 104,58 H146',  c:VEN},      // 右心室 → 肺
-  PV: {d:'M274,58 H316 Q336,58 336,78 V195 Q336,215 316,215 H286', c:ART},    // 肺 → 左心房
+  PV: {d:'M261,58 H316 Q336,58 336,78 V195 Q336,215 316,215 H286', c:ART},    // 肺 → 左心房
   V:  {d:'M144,425 H82 Q62,425 62,405 V235 Q62,215 82,215 H134', c:VEN},     // 全身 → 右心房
 };
 function circSvg(svg){
@@ -512,12 +567,14 @@ document.querySelectorAll('[data-only]').forEach(b=>b.onclick=()=>{ const on=b.g
   $('circ').classList.remove('only-body','only-lung'); if(on){ b.setAttribute('aria-pressed','true'); $('circ').classList.add('only-'+b.dataset.only);} });
 
 /* 赤血球と酸素：1周の道（右心房→右心室→肺→左心房→左心室→全身→右心房） */
+// 角は、描いてある血管（C4 の Q 曲線）と同じ曲がり方で通る（直線で近道すると血管から外れる）
+const Qc=(a,c,b,n=8)=>[...Array(n)].map((_,i)=>{const t=(i+1)/n,u=1-t;return [u*u*a[0]+2*u*t*c[0]+t*t*b[0], u*u*a[1]+2*u*t*c[1]+t*t*b[1]];});
 const LOOP=bake([
-  ['v',[[175,224],[175,256],[166,268],[152,268],[104,268],[84,248],[84,78],[104,58],[146,58]]],
-  ['va',[[146,58],[274,58]]],
-  ['a',[[274,58],[316,58],[336,78],[336,195],[316,215],[286,215],[256,215],[245,224],[245,256],[254,268],[282,268],[322,268],[342,288],[342,405],[322,425],[276,425]]],
+  ['v',[[175,224],[175,256],[166,268],[152,268],[104,268],...Qc([104,268],[84,268],[84,248]),[84,78],...Qc([84,78],[84,58],[104,58]),[146,58]]],
+  ['va',[[146,58],[261,58]]],
+  ['a',[[261,58],[316,58],...Qc([316,58],[336,58],[336,78]),[336,195],...Qc([336,195],[336,215],[316,215]),[286,215],[256,215],[245,224],[245,256],[254,268],[282,268],[322,268],...Qc([322,268],[342,268],[342,288]),[342,405],...Qc([342,405],[342,425],[322,425]),[276,425]]],
   ['av',[[276,425],[144,425]]],
-  ['v',[[144,425],[82,425],[62,405],[62,235],[82,215],[134,215],[164,215],[175,224]]],
+  ['v',[[144,425],[82,425],...Qc([82,425],[62,425],[62,405]),[62,235],...Qc([62,235],[62,215],[82,215]),[134,215],[164,215],[175,224]]],
 ]);
 const RBC=[...Array(14)].map((_,i)=>({d:i*LOOP.total/14}));
 let flowOn=true;
@@ -549,7 +606,127 @@ $('flowBtn').onclick=()=>{flowOn=!flowOn; $('flowBtn').setAttribute('aria-presse
   requestAnimationFrame(tick);
 })();
 
-/* ══════ 5 肺動脈のなぞ ══════ */
+/* ══════ 5 赤血球の旅・6 順番ならべ（図は④と同じ。拡大図の絵は Gemini で生成 2026-10-28、粒だけここで動かす） ══════ */
+const TABI=[
+  {nm:'右心房', p:[175,224], b:'v', say:'旅のスタート。<br>全身の細胞に酸素をわたして、<span class="nw">もどってきた</span>ところ。酸素が少ない<b class="v">静脈血</b>。'},
+  {nm:'右心室', p:[175,256], b:'v', say:'右心房から、下の部屋へ。<br>ここから<b>肺</b>へ送り出される。'},
+  {nm:'肺動脈', p:[84,150], b:'v', gyaku:true, say:'右心室から<b>出て</b>、肺へ向かう血管。<br>この血管の<b>名前</b>と、中を流れる<b>血液</b>をくらべてみよう。',
+    cmp:'名前：肺<b class="a">動脈</b>（心臓から<b>出る</b>血管）<br>中身：<b class="v">静脈血</b>（酸素が<b>少ない</b>）<br><b>名前と中身が逆！</b>'},
+  {nm:'肺', p:[262,58], b:'a', zoom:'lung', say:'肺の<b>肺胞</b>のまわりの毛細血管で、<b>二酸化炭素を出し</b>、<b>酸素を受けとる</b>。<br>ここで<b class="a">動脈血</b>に変わる。'},
+  {nm:'肺静脈', p:[336,140], b:'a', gyaku:true, say:'肺から心臓へ<b>もどる</b>血管。<br>この血管の<b>名前</b>と、中を流れる<b>血液</b>をくらべてみよう。',
+    cmp:'名前：肺<b class="v">静脈</b>（心臓に<b>もどる</b>血管）<br>中身：<b class="a">動脈血</b>（酸素が<b>多い</b>）<br><b>こちらも名前と中身が逆！</b>'},
+  {nm:'左心房', p:[245,224], b:'a', say:'肺から<span class="nw">もどって</span>、左の上の部屋へ。'},
+  {nm:'左心室', p:[245,256], b:'a', say:'かべがいちばん厚い部屋。<br>強い力で<b>全身</b>へ送り出す。'},
+  {nm:'動脈', p:[342,350], b:'a', say:'左心室から<b>出て</b>、全身へ向かう血管。<br>酸素が多い<b class="a">動脈血</b>が流れる。'},
+  {nm:'全身の細胞', card:'全身', p:[150,425], b:'v', zoom:'cells', say:'全身の毛細血管で、細胞に<b>酸素をわたし</b>、<b>二酸化炭素を受けとる</b>。<br>ここで<b class="v">静脈血</b>に変わる。'},
+  {nm:'静脈', p:[62,320], b:'v', say:'全身から心臓へ<b>もどる</b>血管。<br>酸素が少ない<b class="v">静脈血</b>が流れる。'},
+  {nm:'右心房', p:[175,224], b:'v', say:'右心房に<span class="nw">もどってきた！</span> これで1周。<br>1周するあいだに、血液は<b>心臓を2回</b>通った。'},
+];
+(function(){ const near=([x,y])=>{let best=0,bd=1e9; for(let d=0;d<LOOP.total;d+=.5){const q=posAt(LOOP,d),e=Math.hypot(q.x-x,q.y-y); if(e<bd){bd=e;best=d;}} return best;};
+  TABI.forEach((s,i)=>s.d=i===TABI.length-1?LOOP.total:near(s.p)); })();
+const isOxy=q=>q.kind==='a'||(q.kind==='va'&&q.u>.5)||(q.kind==='av'&&q.u<.5);
+
+/* ④の図に、通った道（黄色）・いまの赤血球・場所の名前・光る輪を重ねる */
+function tabiFig(svg){
+  circSvg(svg); svg.querySelectorAll('.c').forEach(e=>e.classList.toggle('show',!e.classList.contains('st7')));
+  const mk=(tag,at)=>{const e=document.createElementNS(NS,tag); for(const k in at) e.setAttribute(k,at[k]); return e;};
+  const trail=mk('path',{fill:'none',stroke:'#ffd84a','stroke-width':16,'stroke-linecap':'round','stroke-linejoin':'round',opacity:.75});
+  svg.insertBefore(trail,svg.querySelector('defs').nextSibling);
+  const ring=mk('circle',{r:21,fill:'none',stroke:'#2b2118','stroke-width':3.5,'stroke-dasharray':'6 5',class:'ringPulse'}); ring.style.display='none';
+  const cell=mk('g',{}); cell.innerHTML='<circle r="12" stroke-width="2.6"/><circle class="o" r="3.8" cx="-4" cy="-3.5" fill="#fff" stroke="#2b2118" stroke-width="1"/><circle class="o" r="3.8" cx="4.5" cy="3" fill="#fff" stroke="#2b2118" stroke-width="1"/>';
+  const lab=mk('g',{}); lab.innerHTML='<rect rx="9" height="26" fill="#fff" stroke="#2b2118" stroke-width="2"/><text class="lbl" font-size="15" text-anchor="middle" y="18"></text>';
+  svg.append(ring,cell,lab);
+  let d=0, anim=null;
+  function trailTo(dd){ if(dd<=0){trail.setAttribute('d','');return;} const pts=[]; for(let s=0;s<dd;s+=3){const q=posAt(LOOP,s); pts.push(q.x.toFixed(1)+','+q.y.toFixed(1));}
+    const e=posAt(LOOP,Math.min(dd,LOOP.total-.01)); pts.push(e.x.toFixed(1)+','+e.y.toFixed(1)); trail.setAttribute('d','M'+pts.join('L')); }
+  function draw(dd,name){ if(name&&/心[房室]$/.test(name)) name=null;   // 4つの部屋は図に名前が書いてあるので、名札は出さない
+    const q=posAt(LOOP,Math.min(dd,LOOP.total-.01)), col=colorOf(q);
+    cell.setAttribute('transform',`translate(${q.x.toFixed(1)},${q.y.toFixed(1)})`); cell.firstChild.setAttribute('fill',col); cell.firstChild.setAttribute('stroke',mix(col,'#000000',.55));
+    cell.querySelectorAll('.o').forEach(o=>o.style.display=isOxy(q)?'':'none');
+    lab.style.display=name?'':'none';
+    if(name){ const w=name.length*15+18, x=Math.max(w/2+2,Math.min(418-w/2,q.x)), y=q.y<40?q.y+18:q.y-46;
+      lab.querySelector('rect').setAttribute('x',x-w/2); lab.querySelector('rect').setAttribute('y',y); lab.querySelector('rect').setAttribute('width',w);
+      const t=lab.querySelector('text'); t.setAttribute('x',x); t.setAttribute('y',y+19); t.textContent=name; } }
+  function set(dd,name){ if(anim){cancelAnimationFrame(anim);anim=null;} d=dd; draw(d,name); trailTo(d); }
+  function moveTo(to,name,done,speed=230){ if(anim){cancelAnimationFrame(anim);anim=null;}
+    const from=d, dur=Math.max(.5,Math.abs(to-from)/speed)*1000;
+    if(reduce||to===from){ set(to,name); done&&done(); return; }
+    let t0=null; const ease=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    const f=ts=>{ if(t0===null)t0=ts; const k=Math.min(1,(ts-t0)/dur); d=from+(to-from)*ease(k); draw(d,null); trailTo(d);
+      if(k<1) anim=requestAnimationFrame(f); else { anim=null; d=to; draw(d,name); done&&done(); } };
+    anim=requestAnimationFrame(f); }
+  function ringAt(dd){ if(dd===null){ring.style.display='none';return;} const q=posAt(LOOP,Math.min(dd,LOOP.total-.01)); ring.setAttribute('cx',q.x); ring.setAttribute('cy',q.y); ring.style.display=''; }
+  function glow(){ trail.classList.remove('trailGlow'); void trail.getBBox(); trail.classList.add('trailGlow'); }
+  return {set,moveTo,ringAt,glow,get busy(){return !!anim}};
+}
+
+/* ── 5 赤血球の旅 ── */
+const F7=tabiFig($('circ7'));
+let t7=0;
+function render7(){ const s=TABI[t7], last=t7===TABI.length-1;
+  $('tNo').textContent=last?'◎':t7+1; $('tName').textContent=s.nm;
+  $('tTag').className='tag '+s.b; $('tTag').textContent=s.b==='a'?'動脈血':'静脈血'; $('tTag').hidden=!!s.gyaku;   // 逆の血管は「くらべる」まで答えを出さない
+  $('say7').innerHTML=s.say;
+  $('gyaku7').hidden=!s.gyaku; $('cmpBox').hidden=true; $('cmpBtn').hidden=false;
+  $('zoom7').hidden=!s.zoom; zoomKind=s.zoom||null;
+  if(s.zoom) $('zoomNote').innerHTML=(s.zoom==='lung'?'肺胞のまわりの毛細血管を大きくした図。':'全身の細胞のまわりの毛細血管を大きくした図。')+'<br><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#fff;border:1.5px solid var(--ink);vertical-align:-1px"></span> 酸素　<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--co2);vertical-align:-1px"></span> 二酸化炭素';
+  $('dots7').innerHTML=TABI.map((_,i)=>`<i class="${i<=t7?'on':''}"></i>`).join('');
+  $('prev7').disabled=t7===0; $('next7').hidden=last; $('go8').hidden=!last; $('next7').disabled=false; }
+$('next7').onclick=()=>{ if(t7>=TABI.length-1||F7.busy) return; t7++; $('next7').disabled=true; $('say7').innerHTML='……';
+  $('gyaku7').hidden=true; $('zoom7').hidden=true; zoomKind=null;
+  F7.moveTo(TABI[t7].d,TABI[t7].nm,()=>{ render7(); if(t7===TABI.length-1) F7.glow(); }); };
+$('prev7').onclick=()=>{ if(t7===0) return; t7--; F7.set(TABI[t7].d,TABI[t7].nm); render7(); };
+$('cmpBtn').onclick=()=>{ $('cmpBox').innerHTML=TABI[t7].cmp; $('cmpBox').hidden=false; $('cmpBtn').hidden=true; $('tTag').hidden=false; };
+
+/* 拡大図：毛細血管の中を赤血球が通り、酸素と二酸化炭素が出入りする（絵の座標 768×429） */
+let zoomKind=null;
+(function(){
+  const svg=$('zoomSvg'), img=document.createElementNS(NS,'image'); img.setAttribute('width',768); img.setAttribute('height',429); svg.appendChild(img);
+  const gP=document.createElementNS(NS,'g'), gC=document.createElementNS(NS,'g'); svg.append(gP,gC);
+  gC.innerHTML='<circle r="30" stroke-width="4"/><circle class="o" r="9" cx="-10" cy="-8" fill="#fff" stroke="#2b2118" stroke-width="2"/><circle class="o" r="9" cx="11" cy="7" fill="#fff" stroke="#2b2118" stroke-width="2"/><circle class="co" r="9" cx="-9" cy="9" fill="#7a7068"/><circle class="co" r="9" cx="12" cy="-6" fill="#7a7068"/>';
+  const Y={lung:360,cells:159}, X0=-40, X1=808, MID=384;
+  let x=X0, kind=null, last=performance.now(), fired=false; const free=[];
+  function puff(x1,y1,x2,y2,o2){ const c=document.createElementNS(NS,'circle'); c.setAttribute('r',9); c.setAttribute('fill',o2?'#fff':'#7a7068'); if(o2){c.setAttribute('stroke','#2b2118');c.setAttribute('stroke-width',2);} gP.appendChild(c); free.push({c,x1,y1,x2,y2,t:0}); }
+  function tick(ts){ const dt=Math.min(.05,(ts-last)/1000); last=ts;
+    if(zoomKind!==kind){ kind=zoomKind; x=X0; fired=false; free.splice(0).forEach(f=>f.c.remove()); if(kind) img.setAttribute('href',kind==='lung'?'zoom_lung.png':'zoom_cells.png'); }
+    if(kind && cur===7){ const y=Y[kind];
+      if(!reduce){ x+=150*dt; if(x>X1){x=X0;fired=false;} }
+      else x=MID+60;
+      const k=Math.max(0,Math.min(1,(x-MID+60)/120)), col=kind==='lung'?mix(VEN,ART,k):mix(ART,VEN,k), oxy=kind==='lung'?k>.5:k<.5;
+      if(!fired && x>=MID-40 && !reduce){ fired=true;
+        if(kind==='lung'){ puff(x+10,y-8,x+30,y-120,false); puff(x+40,y-8,x+70,y-110,false); puff(x-20,y-130,x+60,y-8,true); puff(x+20,y-120,x+90,y+6,true); }
+        else { puff(x+10,y+8,x+20,y+120,true); puff(x+40,y+6,x+80,y+130,true); puff(x-30,y+120,x+60,y+8,false); puff(x+10,y+130,x+95,y-4,false); } }
+      gC.setAttribute('transform',`translate(${x.toFixed(1)},${y})`); gC.firstChild.setAttribute('fill',col); gC.firstChild.setAttribute('stroke',mix(col,'#000000',.55));
+      gC.querySelectorAll('.o').forEach(o=>o.style.display=oxy?'':'none'); gC.querySelectorAll('.co').forEach(o=>o.style.display=oxy?'none':'');
+      for(let i=free.length-1;i>=0;i--){ const f=free[i]; f.t+=dt/1.3; const e=Math.min(1,f.t);
+        f.c.setAttribute('cx',f.x1+(f.x2-f.x1)*e); f.c.setAttribute('cy',f.y1+(f.y2-f.y1)*e); f.c.setAttribute('opacity',1-Math.max(0,e-.8)/.2);
+        if(f.t>=1){f.c.remove();free.splice(i,1);} } }
+    requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+})();
+F7.set(0,TABI[0].nm); render7();
+
+/* ── 6 順番ならべ ── */
+const F8=tabiFig($('circ8'));
+let k8=0;
+const shuffle=a=>{ let b; do{ b=[...a].sort(()=>Math.random()-.5); }while(b.every((v,i)=>v===a[i])); return b; };
+function slots8(){ $('slots8').innerHTML=TABI.map((s,i)=>i===0||i<=k8?`<li>${s.card||s.nm}</li>`:'<li class="empty">？</li>').join(''); }
+function reset8(){ k8=0; F8.set(0,TABI[0].nm); F8.ringAt(null); $('go5').hidden=true; $('say8').innerHTML='<b>右心房</b>の次は？';
+  const names=TABI.slice(1,TABI.length-1).map(s=>s.card||s.nm);
+  $('cards8').innerHTML=shuffle(names).map(n=>`<button>${n}</button>`).join('');
+  $('cards8').querySelectorAll('button').forEach(b=>b.onclick=()=>pick8(b)); slots8(); }
+function pick8(btn){ if(F8.busy||k8>=TABI.length-2) return; const want=TABI[k8+1], name=btn.textContent;
+  if(name===(want.card||want.nm)){ k8++; btn.hidden=true; F8.ringAt(null); slots8();
+    F8.moveTo(want.d,want.nm,()=>{ if(k8===TABI.length-2) finish8(); else $('say8').innerHTML=`<b>${want.card||want.nm}</b>の次は？`; }); }
+  else { btn.classList.remove('ng'); void btn.offsetWidth; btn.classList.add('ng'); F8.ringAt(want.d);
+    $('say8').innerHTML=`「${name}」ではないよ。<br><b>${TABI[k8].card||TABI[k8].nm}</b>から進んだ先、図の<b>光っている所</b>は何だろう？`; } }
+function finish8(){ k8=TABI.length-1; slots8(); const end=TABI[TABI.length-1];
+  F8.moveTo(end.d,end.nm,()=>{ F8.glow(); F8.set(0,null); F8.moveTo(LOOP.total,end.nm,null,520);
+    $('say8').innerHTML='全部そろった！<br>血液は<b>心臓を2回</b>通って、からだを1周する。'; $('go5').hidden=false; }); }
+$('reset8').onclick=reset8;
+reset8();
+
+/* ══════ 7 肺動脈のなぞ ══════ */
 $('hint1').onclick=()=>{ $('hintBox').hidden=false; $('hintBox').innerHTML='ヒント1：「<b>動脈・静脈</b>」は<b>血管</b>の名前。何で決まる？（心臓から出る？ もどる？）'; };
 $('hint2').onclick=()=>{ $('hintBox').hidden=false; $('hintBox').innerHTML='ヒント2：「<b>動脈血・静脈血</b>」は<b>血液</b>の名前。何で決まる？（酸素が多い？ 少ない？）'; };
 $('ansBtn').onclick=()=>{ const open=$('ansBox').hidden; $('ansBox').hidden=!open; $('ask5').hidden=open; $('hintRow').hidden=open; if(open) $('hintBox').hidden=true;
@@ -558,7 +735,7 @@ $('ansBtn').onclick=()=>{ const open=$('ansBox').hidden; $('ansBox').hidden=!ope
 /* 検査用 */
 /* ══════ 6 弁のしくみ（絵は Gemini。粒の動きと絵の切りかえだけをここで動かす） ══════ */
 (function(){
-  const Y1=194, Y2=378, YC=288, R=14, BAR=[[196, 511], [200, 512], [204, 513], [208, 514], [212, 515], [216, 517], [220, 518], [224, 520], [228, 522], [232, 525], [236, 527], [240, 530], [244, 533], [248, 536], [252, 540], [256, 548], [260, 552], [264, 554], [268, 555], [272, 554], [276, 551], [280, 554], [284, 554], [288, 554], [292, 546], [296, 552], [300, 554], [304, 555], [308, 554], [312, 552], [316, 546], [320, 539], [324, 535], [328, 532], [332, 529], [336, 526], [340, 524], [344, 522], [348, 520], [352, 518], [356, 516], [360, 515], [364, 514], [368, 513], [372, 512], [376, 511]];
+  const Y1=194, Y2=378, YC=288, R=14, BAR=[[196, 511], [200, 512], [204, 513], [208, 514], [212, 515], [216, 516], [220, 517], [224, 519], [228, 521], [232, 523], [236, 525], [240, 527], [244, 530], [248, 533], [252, 536], [256, 539], [260, 546], [264, 551], [268, 554], [272, 555], [276, 554], [280, 553], [284, 550], [288, 551], [292, 554], [296, 555], [300, 554], [304, 553], [308, 550], [312, 542], [316, 538], [320, 535], [324, 532], [328, 529], [332, 527], [336, 524], [340, 522], [344, 520], [348, 519], [352, 517], [356, 516], [360, 515], [364, 514], [368, 513], [372, 512], [376, 574]];
   let mode='fwd', none=false, auto=null, last=null, spawnT=0;
   const dots=[], g=$('vDots');
   const barrierX=y=>{ let k=Math.round((y-BAR[0][0])/4); k=Math.max(0,Math.min(BAR.length-1,k)); return BAR[k][1]+R+3; };
@@ -604,7 +781,8 @@ $('ansBtn').onclick=()=>{ const open=$('ansBox').hidden; $('ansBox').hidden=!ope
   texts(); for(let i=0;i<150;i++) step(1/60); requestAnimationFrame(loop);
   window.__valve={setMode,get none(){return none},set none(v){none=v;texts()},dots,step};
 })();
-window.__lab={go,get s3(){return s3},set s3(v){s3=v;render3()},get s4(){return s4},set s4(v){s4=v;render4()},setPh,select3};
+window.__lab={go,get s3(){return s3},set s3(v){s3=v;render3()},get s4(){return s4},set s4(v){s4=v;render4()},setPh,select3,
+  get t7(){return t7},set t7(v){t7=v;F7.set(TABI[v].d,TABI[v].nm);render7()},get k8(){return k8},TABI,reset8};
 go(1);
 </script>
 </body>
