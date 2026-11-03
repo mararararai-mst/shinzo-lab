@@ -57,7 +57,7 @@ main{padding:6px 16px 20px}
 [hidden]{display:none!important}
 #ansBox{font-size:.95rem;line-height:1.6}
 .nw{white-space:nowrap}
-.stepper{display:flex;align-items:center;gap:10px}
+.stepper{display:flex;align-items:center;gap:10px;min-height:48px}   /* 最後の段階で「つぎ」が消えても、もどるが動かない */
 .stepper .dots{display:flex;gap:5px;flex:1;flex-wrap:wrap}
 .stepper .dots i{width:12px;height:12px;border-radius:50%;background:#e6d6b4;display:block}
 .stepper .dots i.on{background:var(--ink)}
@@ -266,12 +266,12 @@ main{padding:6px 16px 20px}
     <h2>赤血球の旅</h2>
     <div class="tabiNow"><span id="tNo">1</span><b id="tName">右心房</b><span class="tag v" id="tTag">静脈血</span></div>
     <div class="say" id="say7"></div>
+    <div class="stepper"><button class="ghost" id="prev7">◀ もどる</button><div class="dots" id="dots7"></div><button class="big" id="next7">つぎへ ▶</button></div>
     <div id="gyaku7" hidden>
       <button class="ghost" id="cmpBtn">名前と中身をくらべる</button>
       <div class="say gyaku" id="cmpBox" hidden></div>
     </div>
     <div class="zoom" id="zoom7" hidden><svg id="zoomSvg" viewBox="0 0 768 429" role="img" aria-label="毛細血管の拡大図"></svg><p class="note" id="zoomNote"></p></div>
-    <div class="stepper"><button class="ghost" id="prev7">◀ もどる</button><div class="dots" id="dots7"></div><button class="big" id="next7">つぎへ ▶</button></div>
     <button class="big" id="go8" data-go="8" hidden>順番ならべに挑戦 →</button>
   </div>
 </section>
@@ -342,6 +342,12 @@ const mix=(c1,c2,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));con
 const GROUND={navy:['#15233f','#f4ece0'],kinari:['#f4ece0','#2b2118'],mint:['#bfe6d6','#2b2118']};
 (function(){ const k=location.hash.slice(1); if(GROUND[k]){ document.documentElement.style.setProperty('--g',GROUND[k][0]); document.documentElement.style.setProperty('--gInk',GROUND[k][1]); } })();
 const reduce=false;   // Windows の「アニメーション効果」オフ（prefers-reduced-motion）でも止めない。止めたいときは各画面の「とめる」ボタン
+/* 説明の枠は、その画面でいちばん長い文に高さをそろえる（「つぎへ」を押してもボタンが上下しない。2026-11-03） */
+const LOCKS=[];
+const lockH=(el,list)=>LOCKS.push({el,list});
+function relock(){ LOCKS.forEach(({el,list})=>{ if(!el.offsetParent) return; const keep=el.innerHTML; el.style.minHeight=''; let m=0;
+  (typeof list==='function'?list():list).forEach(h=>{ el.innerHTML=h; m=Math.max(m,el.getBoundingClientRect().height); }); el.innerHTML=keep; el.style.minHeight=Math.ceil(m)+'px'; }); }
+addEventListener('resize',relock); if(document.fonts) document.fonts.ready.then(relock);
 
 /* ── 画面の切りかえ ── */
 let cur=1;
@@ -349,7 +355,7 @@ function go(n){
   cur=n; document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==='s'+n));
   document.querySelectorAll('.steps button').forEach(b=>{ if(+b.dataset.go===n) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); });
   if(n===2) init3d();
-  scrollTo(0,0);
+  relock(); scrollTo(0,0);
 }
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.go)));
 
@@ -781,6 +787,12 @@ $('ansBtn').onclick=()=>{ const open=$('ansBox').hidden; $('ansBox').hidden=!ope
   texts(); for(let i=0;i<150;i++) step(1/60); requestAnimationFrame(loop);
   window.__valve={setMode,get none(){return none},set none(v){none=v;texts()},dots,step};
 })();
+lockH($('h3'),STEPS3.map((s,i)=>(i+1)+'. '+s[0]));
+lockH($('say3'),STEPS3.flatMap(([,t],i)=>i+1>=4&&i+1!==5?[t,...PH.slice(1).map(p=>t+'<br><br><b>'+p+'</b>')]:[t]));   // 「なぜ？の答え」は押したときだけ長くなる（最後の段階なので、つぎへは無い）
+lockH($('h4'),STEPS4.map((s,i)=>(i+1)+'. '+s[0])); lockH($('say4'),STEPS4.map(s=>s[1]));
+lockH($('say7'),TABI.map(s=>s.say));
+lockH($('say8'),()=>{ const ns=[...new Set(TABI.map(s=>s.card||s.nm))];   // 並べている間に出る文（最後の「全部そろった！」もふくむ）
+  return [...ns.flatMap(n=>[`<b>${n}</b>の次は？`,`「${n}」ではないよ。<br><b>${n}</b>から進んだ先、図の<b>光っている所</b>は何だろう？`]),'全部そろった！<br>血液は<b>心臓を2回</b>通って、からだを1周する。']; });
 window.__lab={go,get s3(){return s3},set s3(v){s3=v;render3()},get s4(){return s4},set s4(v){s4=v;render4()},setPh,select3,
   get t7(){return t7},set t7(v){t7=v;F7.set(TABI[v].d,TABI[v].nm);render7()},get k8(){return k8},TABI,reset8};
 go(1);
